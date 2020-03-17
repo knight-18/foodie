@@ -11,8 +11,19 @@ router.use("/api/user", user);
 router.use("/api/restaurant", restaurant);
 router.use("/api/food", food);
 
-// NonExistent Route
-router.get("*", (req, res) => {
+/**
+ * @swagger
+ * path:
+ *  /invalid:
+ *    get:
+ *      summary: sends a 404 for all invalid endpoints
+ *      responses:
+ *        404:
+ *          description: Invalid Endpoint
+ *
+ */
+router.get("/*", (req, res) => {
+  res.status(404);
   res.send("Invalid Endpoint");
 });
 
