@@ -8,6 +8,37 @@ const app = express();
 const routes = require("./routes/index");
 const connectDB = require("./connect");
 
+//==========================Swagger set up========================
+const options = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Foodie backend",
+      version: "1.0.0",
+      description: "Backend for the foodie app",
+      contact: {
+        name: "Foodie",
+        url: "https://www.github.com/KaviiSuri/foodie"
+      }
+    },
+    servers: [
+      {
+        url: "http://localhost:5000/api/"
+      }
+    ]
+  },
+  apis: ["./routes/*.js", "./models/*.js"]
+};
+
+const specs = swaggerJsdoc(options);
+app.use("/api/docs", swaggerUi.serve);
+app.get(
+  "/api/docs",
+  swaggerUi.setup(specs, {
+    explorer: true
+  })
+);
+
 // Body Parser Middleware
 app.use(bodyParser.json());
 
