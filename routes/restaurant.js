@@ -97,8 +97,9 @@ router.get("/", (req, res) => {
  *                    address:
  *                      type: string
  *              example:
- *                username: admin
- *                password: password
+ *                super:
+ *                  username: admin
+ *                  password: password
  *                restaurant:
  *                  name: Restaurant 1
  *                  contactNos: ["+919432451728"]
