@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 const app = express();
 
@@ -26,7 +26,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api/"
+        url: `http://localhost:${PORT}/api/`
       }
     ]
   },
@@ -53,5 +53,5 @@ app.use("/", routes);
 
 app.listen(PORT, () => {
   console.log(`Listening on PORT:${PORT}
-You can look at it at http://localhost:5000/`);
+You can look at it at http://localhost:${PORT}/`);
 });
