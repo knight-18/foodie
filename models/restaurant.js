@@ -16,21 +16,21 @@ const Schema = mongoose.Schema;
  *          name:
  *            type: string
  *          contactNos:
- *            type: Array
+ *            type: array
  *            description: Array of all the contact no.s of a restaurant
  *          address:
  *            type: string
  *          orders:
- *            type: Array
+ *            type: array
  *            description: Array of all the orders of a restaurant
  *          foods:
- *            type: Array
+ *            type: array
  *            description: Array of all the foods of a restaurant
  *        example:
  *           id: 12347914324
  *           name: Restaurant 1
  *           foods: [foodid1, foodid2]
- *           contacts: [9432451728, 1237843412]
+ *           contactNos: ["+919432451728"]
  *           address: Example address, example street, example city...
  *
  *
