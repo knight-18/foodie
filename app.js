@@ -26,7 +26,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:5000/api/"
+        url: `http://localhost:${PORT}/api/`
       }
     ]
   },
@@ -53,5 +53,5 @@ app.use("/", routes);
 
 app.listen(PORT, () => {
   console.log(`Listening on PORT:${PORT}
-You can look at it at http://localhost:5000/`);
+You can look at it at http://localhost:${PORT}/`);
 });
