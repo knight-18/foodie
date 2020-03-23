@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
+
 const Food = require("../models/food.js");
 const Restaurant = require("../models/restaurant");
+const restAuth = require("../middleware/restauth");
+
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
 //=========================== Routes==================================
@@ -49,7 +52,7 @@ router.get("/", async (req, res) => {
 });
 
 //create food
-router.post("/", async (req, res) => {
+router.post("/", restAuth, async (req, res) => {
   const food = new Food({
     name: req.body.name,
     restaurants: req.body.restaurantId
