@@ -11,20 +11,20 @@ router.use("/api/user", user);
 router.use("/api/restaurant", restaurant);
 router.use("/api/food", food);
 
-/**
- * @swagger
- * path:
- *  /invalid:
- *    get:
- *      summary: sends a 404 for all invalid endpoints
- *      responses:
- *        404:
- *          description: Invalid Endpoint
- *
- */
-router.get("/*", (req, res) => {
-  res.status(404);
-  res.send("Invalid Endpoint");
+// error handling
+router.use((eq, res, next) => {
+  const error = new Error("Invalid Endpoint");
+  error.status = 404;
+  next(error);
+});
+
+router.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.json({
+    error: {
+      message: error.message
+    }
+  });
 });
 
 module.exports = router;
