@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const Restaurant = require("../models/restaurant");
 const superAdminAuth = require("../middleware/super_admin_middleware");
-const auth = require('../middleware/restauth')
+const auth = require("../middleware/restauth");
 
 // //==============Seeding===============
-if (process.env.NODE_ENV != "prod") {
-  const restaurant_seed = require("../seeds/restaurant_seed");
-  restaurant_seed();
-}
+// if (process.env.NODE_ENV != "prod") {
+//   const restaurant_seed = require("../seeds/restaurant_seed");
+//   restaurant_seed();
+// }
 
 //=========================== Routes==================================
 
@@ -73,15 +73,17 @@ router.get("/", (req, res) => {
  *            schema:
  *              type: object
  *              required:
- *                - username
- *                - password
+ *                - super
  *                - restaurant
  *              properties:
- *                username:
- *                  type: string
- *                password:
- *                  type: string
- *                  format: password
+ *                super:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   password:
+ *                     type: string
+ *                     format: password
  *                restaurant:
  *                  type: object
  *                  required:
@@ -115,65 +117,68 @@ router.get("/", (req, res) => {
  */
 
 router.post("/", superAdminAuth, async (req, res) => {
-  const restaurant = new Restaurant(req.body.restaurant)
+  const restaurant = new Restaurant(req.body.restaurant);
   try {
-    await restaurant.save()
-    const token = await restaurant.generateAuthToken()
-    res.status(201).send({ restaurant, token })
-} catch (e) {
-    res.status(400).send(e)
-}
+    await restaurant.save();
+    const token = await restaurant.generateAuthToken();
+    res.status(201).send({ restaurant, token });
+  } catch (e) {
+    res.status(400).send(e);
+  }
 });
 
 //Login Route for restaurant
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
-      const restaurant = await Restaurant.findByCredentials(req.body.rest_id, req.body.password)
-      const token = await restaurant.generateAuthToken()
-      res.send({ restaurant, token })
+    const restaurant = await Restaurant.findByCredentials(
+      req.body.rest_id,
+      req.body.password
+    );
+    const token = await restaurant.generateAuthToken();
+    res.send({ restaurant, token });
   } catch (e) {
-      res.status(400).send()
+    res.status(400).send();
   }
-})
+});
 
 //Logout route for restaurant
-router.post('/logout', auth, async (req, res) => {
+router.post("/logout", auth, async (req, res) => {
   try {
-      req.user.tokens = req.user.tokens.filter((token) => {
-          return token.token !== req.token
-      })
-      await req.user.save()
+    req.user.tokens = req.user.tokens.filter(token => {
+      return token.token !== req.token;
+    });
+    await req.user.save();
 
-      res.send("Logged Out")
+    res.send("Logged Out");
   } catch (e) {
-      res.status(500).send()
+    res.status(500).send();
   }
-})
+});
 
 //Route to logout all sessions
-router.post('/logoutAll', auth, async (req, res) => {
+router.post("/logoutAll", auth, async (req, res) => {
   try {
-      req.user.tokens = []
-      await req.user.save()
-      res.send()
+    req.user.tokens = [];
+    await req.user.save();
+    res.send();
   } catch (e) {
-      res.status(500).send()
+    res.status(500).send();
   }
-})
+});
 //Route to read restaurant profile
-router.get('/me', auth, async (req, res) => {
-  res.send(req.user)
-})
+router.get("/me", auth, async (req, res) => {
+  res.send(req.user);
+});
 
 //Route to delete user profile
-router.delete('/me', auth, async (req, res) => {
+router.delete("/me", auth, async (req, res) => {
   try {
-      await req.user.remove()
-      res.send(req.user)
+    await req.user.remove();
+    res.send(req.user);
   } catch (e) {
-      res.status(500).send()
+    res.status(500).send();
   }
-})
+});
 
 /**
  * @swagger

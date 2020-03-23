@@ -2,35 +2,36 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-const FoodSchema = new Schema({
-    name:{
-        type:String,
-        required:true
-    }
-});
+/**
+ * @swagger
+ *  components:
+ *    schemas:
+ *      Food:
+ *        type: object
+ *        properties:
+ *          name:
+ *            type: string
+ *          restaurants:
+ *            type: array
+ *            items:
+ *              type: string
+ *              description: id of the restaurants
+ */
 
+const FoodSchema = new Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  restaurants: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Restaurant"
+    }
+  ]
+});
 
 Food = mongoose.model("Food", FoodSchema);
 
-//==================for testing ===========================
-
-// var data =[
-//     {name:'chicken'},
-//     {name:'paneer'},
-//     {name:'cheese cake'}
-// ]
-// Food.create(data,(err,food)=>{
-//     if(err){
-//         console.log(err);
-//     }else{
-//         console.log("food created");
-//     }
-
-// });
-
-//======================================================
-
-
-
-// Uncomment when done with schema
- module.exports = Food ;
+module.exports = Food;

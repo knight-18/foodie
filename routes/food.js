@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-var Food = require('../models/food.js');
+const Food = require("../models/food.js");
+const Restaurant = require("../models/restaurant");
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
 //=========================== Routes==================================
@@ -10,6 +11,62 @@ var Food = require('../models/food.js');
  * tags:
  *   name: food
  */
+
+//=======================================
+const getResponse = function(foods) {
+  return foods.map(food => {
+    const restaurantList = food.restaurants.map(restaurant => {
+      const price = restaurant.foods.find(obj => food.id == obj.foodid).price;
+      return {
+        name: restaurant.name,
+        _id: restaurant.id,
+        price: price
+      };
+    });
+
+    return {
+      name: food.name,
+      _id: food.id,
+      restaurants: restaurantList
+    };
+  });
+};
+//=============ROUTES====================
+//find food
+router.get("/", async (req, res) => {
+  try {
+    const foods = await Food.find({})
+      .populate("restaurants")
+      .exec();
+    if (!foods) {
+      res.status(404).send();
+    }
+    const response = getResponse(foods);
+    res.json(response);
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
+//create food
+router.post("/", async (req, res) => {
+  const food = new Food({
+    name: req.body.name,
+    restaurants: req.body.restaurantId
+  });
+  try {
+    const result = await food.save();
+    const restaurant = await Restaurant.findById(req.body.restaurantId);
+    restaurant.foods.push({
+      foodid: result.id,
+      price: req.body.price
+    });
+    await restaurant.save();
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 /**
  * @swagger
@@ -25,43 +82,6 @@ var Food = require('../models/food.js');
  *            text/html:
  *              [SUCCESS]: food routes connected!
  */
-//=======================================
-
-//=============ROUTES====================
-//find food
-router.get('/',async (req,res)=>{
-      try {
-        var food = await Food.find({});
-        if(!food){
-          res.status(404).send();
-          }
-          res.json(food);
-        }
-       catch (e) {
-        res.status(500).send();
-      }
-});
-
-//create food
-router.post('/', async (req,res)=>{
-  var food = new Food({
-    name:req.body.name
-  })
-  Food.create(req.body.name, (err, food) => {
-    if (err) {
-      console.log("Error");
-      res.sendStatus(500);
-      res.end();
-    } else {
-      res.Status(201).send(food);
-    }
-  });
-  console.log("sucess in food");
-  console.log(req.body.name);
-  res.status(200).end();
-});
-
-
 router.get("/test", (req, res) => {
   res.status(200);
   res.send("[SUCCESS]: Food routes connected!");
