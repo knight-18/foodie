@@ -5,10 +5,10 @@ const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require('../middleware/restauth')
 
 // //==============Seeding===============
-if (process.env.NODE_ENV != "prod") {
-  const restaurant_seed = require("../seeds/restaurant_seed");
-  restaurant_seed();
-}
+// if (process.env.NODE_ENV != "prod") {
+//   const restaurant_seed = require("../seeds/restaurant_seed");
+//   restaurant_seed();
+// }
 
 //=========================== Routes==================================
 
@@ -46,8 +46,8 @@ router.get("/", (req, res) => {
         data.push({
           id: restaurant._id,
           name: restaurant.name,
-          foods: restaurant.foods,
-          contacts: restaurant.contactNos,
+          //foods: restaurant.foods,
+          //contacts: restaurant.contactNos,
           address: restaurant.address
         });
       });
@@ -165,7 +165,7 @@ router.get('/me', auth, async (req, res) => {
   res.send(req.user)
 })
 
-//Route to delete user profile
+//Route to delete restaurant profile
 router.delete('/me', auth, async (req, res) => {
   try {
       await req.user.remove()
@@ -190,9 +190,6 @@ router.delete('/me', auth, async (req, res) => {
  *              [SUCCESS]: Restaurant routes connected!
  */
 
-// router.patch('/', (req, res) => {
-//   const updates = Object.keys(req.body)
-// })
 router.get("/test", (req, res) => {
   res.status(200);
   res.send("[SUCCESS]: Restaurant routes connected!");

@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken')
-const Restaurant = require('../models/restaurant')
+const DeliveryGuy = require('../models/deliveryGuy')
 
 const auth = async (req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '')
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const user = await Restaurant.findOne({ _id: decoded._id, 'tokens.token': token })
+        const user = await DeliveryGuy.findOne({ _id: decoded._id, 'tokens.token': token })
 
         if (!user) {
             throw new Error()
