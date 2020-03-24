@@ -47,7 +47,8 @@ router.get("/", (req, res) => {
         data.push({
           id: restaurant._id,
           name: restaurant.name,
-          contacts: restaurant.contactNos,
+          //foods: restaurant.foods,
+          //contacts: restaurant.contactNos,
           address: restaurant.address
         });
       });
@@ -171,7 +172,7 @@ router.get("/me", auth, async (req, res) => {
   res.send(req.user);
 });
 
-//Route to delete user profile
+//Route to delete restaurant profile
 router.delete("/me", auth, async (req, res) => {
   try {
     await req.user.remove();
