@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-require('dotenv').config()
+require("dotenv").config();
 
 const PORT = process.env.PORT;
 
@@ -11,7 +11,6 @@ const app = express();
 
 const routes = require("./routes/index");
 const connectDB = require("./connect");
-
 
 //==========================Swagger set up========================
 const options = {

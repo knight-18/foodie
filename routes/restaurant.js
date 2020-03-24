@@ -40,7 +40,8 @@ const auth = require("../middleware/restauth");
 router.get("/", (req, res) => {
   Restaurant.find({}, (err, restaurants) => {
     if (err) {
-      res.sendStatus(500);
+      console.log(err);
+      res.status(500).json(err);
     } else {
       var data = [];
       restaurants.forEach(restaurant => {
@@ -125,6 +126,7 @@ router.post("/", superAdminAuth, async (req, res) => {
     const token = await restaurant.generateAuthToken();
     res.status(201).send({ restaurant, token });
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
@@ -249,7 +251,9 @@ router.post("/food", auth, async (req, res) => {
       price: req.body.price
     });
     const result = await restaurant.save();
-    console.log(result);
+
+    food.restaurants.push(result._id);
+    food.save();
     res.status(200).end();
   } catch (error) {
     console.log(error);
@@ -257,14 +261,23 @@ router.post("/food", auth, async (req, res) => {
   }
 });
 
+// route to delete food from the restaurant
 router.delete("/food", auth, async (req, res) => {
   try {
     const restaurant = req.user;
     restaurant.foods = restaurant.foods.filter(obj => {
       return obj.foodid != req.body.foodid;
     });
+    const food = await Food.findById(req.body.foodid);
+    let arr = [];
+    for (let i = 0; i < food.restaurants.length; i++) {
+      if (food.restaurants[i] != restaurant.id) {
+        arr.push(food.restaurants[i]);
+      }
+    }
+    food.restaurants = arr;
+    food.save();
     const result = await restaurant.save();
-    //console.log(result);
     res.status(200).end();
   } catch (error) {
     console.log(error);
