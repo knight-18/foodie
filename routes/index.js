@@ -5,11 +5,13 @@ const router = express.Router();
 const user = require("./user");
 const restaurant = require("./restaurant");
 const food = require("./food");
+const deliveryGuy = require("./deliveryGuy")
 
 // Using Routes
 router.use("/api/user", user);
 router.use("/api/restaurant", restaurant);
 router.use("/api/food", food);
+router.use("/api/deliveryGuy", deliveryGuy)
 
 // error handling
 router.use((eq, res, next) => {
