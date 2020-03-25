@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Restaurant = require("../models/restaurant");
+const Food = require("../models/food");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
 
@@ -39,7 +40,8 @@ if (process.env.NODE_ENV != "prod") {
 router.get("/", (req, res) => {
   Restaurant.find({}, (err, restaurants) => {
     if (err) {
-      res.sendStatus(500);
+      console.log(err);
+      res.status(500).json(err);
     } else {
       var data = [];
       restaurants.forEach(restaurant => {
@@ -89,6 +91,7 @@ router.get("/", (req, res) => {
  *                  required:
  *                    - name
  *                    - contactNos
+ *                    - address
  *                  properties:
  *                    name:
  *                      type: string
@@ -123,6 +126,7 @@ router.post("/", superAdminAuth, async (req, res) => {
     const token = await restaurant.generateAuthToken();
     res.status(201).send({ restaurant, token });
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
@@ -137,7 +141,7 @@ router.post("/login", async (req, res) => {
     const token = await restaurant.generateAuthToken();
     res.send({ restaurant, token });
   } catch (e) {
-    res.status(400).send();
+    res.status(500).send(e);
   }
 });
 
@@ -170,9 +174,8 @@ router.get("/me", auth, async (req, res) => {
   res.send(req.user);
 });
 
-
 //Route to delete restaurant profile
-router.delete('/me', auth, async (req, res) => {
+router.delete("/me", auth, async (req, res) => {
   try {
     await req.user.remove();
     res.send(req.user);
@@ -181,6 +184,106 @@ router.delete('/me', auth, async (req, res) => {
   }
 });
 
+// upadte route for the restaurant
+router.patch("/", auth, async (req, res) => {
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ["name", "password", "address", "contactNos"];
+  const isValidOperation = updates.every(update =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidOperation) {
+    return res.status(400).send({ error: "Invalid updates!" });
+  }
+  if (update.contactNos && !updates.contactNos.isArray()) {
+    return res.status(400).send({
+      error:
+        "contactNos should be an array containing all the numbers of the restaurants including the old ones!"
+    });
+  }
+  try {
+    updates.forEach(update => (req.user[update] = req.body[update]));
+    await req.user.save();
+    res.status(200).send(req.user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+// get the details of the restarant for details page
+router.get("/:_id", async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params._id).populate(
+      "foods.foodid"
+    );
+
+    if (!restaurant) {
+      return res.status(404).json({
+        error: "No such restaurant found!"
+      });
+    }
+
+    res.status(200).json({
+      _id: restaurant._id,
+      name: restaurant.name,
+      contactNos: restaurant.contactNos,
+      address: restaurant.address,
+      foods: restaurant.foods
+    });
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// route to add new food
+
+router.post("/food", auth, async (req, res) => {
+  try {
+    const food = await Food.findById(req.body.foodid);
+    if (!food) {
+      res.status(404).json({
+        error: "Food doesn't exist"
+      });
+    }
+    const restaurant = req.user;
+    restaurant.foods.push({
+      foodid: req.body.foodid,
+      price: req.body.price
+    });
+    const result = await restaurant.save();
+
+    food.restaurants.push(result._id);
+    food.save();
+    res.status(200).end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+// route to delete food from the restaurant
+router.delete("/food", auth, async (req, res) => {
+  try {
+    const restaurant = req.user;
+    restaurant.foods = restaurant.foods.filter(obj => {
+      return obj.foodid != req.body.foodid;
+    });
+    const food = await Food.findById(req.body.foodid);
+    let arr = [];
+    for (let i = 0; i < food.restaurants.length; i++) {
+      if (food.restaurants[i] != restaurant.id) {
+        arr.push(food.restaurants[i]);
+      }
+    }
+    food.restaurants = arr;
+    food.save();
+    const result = await restaurant.save();
+    res.status(200).end();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
 /**
  * @swagger
  * path:

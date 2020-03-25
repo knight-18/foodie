@@ -91,12 +91,11 @@ const RestaurantSchema = new Schema(
       {
         foodid: {
           type: Schema.Types.ObjectId,
-          ref: "Food",
-          required: true
+          ref: "Food"
         },
         price: {
           type: Number,
-          required: true
+          default: 0
         }
       }
     ],
@@ -125,9 +124,9 @@ RestaurantSchema.methods.toJSON = function() {
 };
 
 //JWT function to generate auth tokens
-RestaurantSchema.methods.generateAuthToken = async function () {
-  const user = this
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
+RestaurantSchema.methods.generateAuthToken = async function() {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
   user.tokens = user.tokens.concat({ token });
   await user.save();
 

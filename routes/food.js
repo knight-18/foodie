@@ -55,13 +55,13 @@ router.get("/", async (req, res) => {
 router.post("/", restAuth, async (req, res) => {
   const food = new Food({
     name: req.body.name,
-    restaurants: req.body.restaurantId
+    restaurants: [req.user._id]
   });
   try {
     const result = await food.save();
-    const restaurant = await Restaurant.findById(req.body.restaurantId);
+    const restaurant = req.user;
     restaurant.foods.push({
-      foodid: result.id,
+      foodid: result._id,
       price: req.body.price
     });
     await restaurant.save();
