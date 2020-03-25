@@ -5,11 +5,11 @@ const Food = require("../models/food");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
 
-// //==============Seeding===============
-// if (process.env.NODE_ENV != "prod") {
-//   const restaurant_seed = require("../seeds/restaurant_seed");
-//   restaurant_seed();
-// }
+//==============Seeding===============
+if (process.env.NODE_ENV != "prod") {
+  const restaurant_seed = require("../seeds/restaurant_seed");
+  restaurant_seed();
+}
 
 //=========================== Routes==================================
 

@@ -102,11 +102,4 @@ DeliveryGuySchema.pre("save", async function(next) {
   next();
 });
 
-// DeliveryGuy.create({name:"abc",phone:123452221},(err,guy)=>{
-//     if(err){
-//         console.log(err);
-//     }
-//     else
-//     console.log(guy);
-// });
 module.exports = DeliveryGuy = mongoose.model("DeliveryGuy", DeliveryGuySchema);
