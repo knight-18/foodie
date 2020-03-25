@@ -4,6 +4,12 @@ var DeliveryGuy = require('../models/deliveryGuy');
 const superAdminAuth = require("../middleware/super_admin_middleware")
 const auth = require('../middleware/deliveryguyauth')
 
+//==============Seeding===============
+if (process.env.NODE_ENV != "prod") {
+  const deliveryGuy_seed = require("../seeds/deliveryGuy_seed");
+  deliveryGuy_seed();
+}
+
 //===========ROUTES==================================
 
 

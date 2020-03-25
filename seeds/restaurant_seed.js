@@ -5,18 +5,16 @@ const data = [
   {
     name: "Restaurant Check 1",
     address: "Check Address",
-    rest_id: "123",
+    rest_id: "rest1",
     password:"12345678",
-    contactNos:["+918602313604"],
-    foods: [1, 10, 21, 342]
+    contactNos:["+918602313604"]
   },
   {
     name: "Restaurant Check 2",
     address: "Check Address 2",
-    rest_id: "1234",
+    rest_id: "rest2",
     password:"12345678",
-    contactNos:["+918602313604"],
-    foods: [2, 20, 22, 322]
+    contactNos:["+918602313604"]
   }
 ];
 
