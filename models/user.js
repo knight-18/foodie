@@ -81,9 +81,12 @@ const userSchema = new Schema(
       type: String,
       required: true
     },
-    orders: {
-      type: Array
-    },
+    orders: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Order"
+      }
+    ],
     tokens: [
       {
         token: {
@@ -109,9 +112,9 @@ userSchema.methods.toJSON = function() {
 };
 
 //JWT function to generate auth tokens
-userSchema.methods.generateAuthToken = async function () {
-    const user = this
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET)
+userSchema.methods.generateAuthToken = async function() {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
