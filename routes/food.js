@@ -5,6 +5,13 @@ const Food = require("../models/food.js");
 const Restaurant = require("../models/restaurant");
 const restAuth = require("../middleware/restauth");
 
+if (process.env.NODE_ENV != "prod") {
+  const food_seed = require("../seeds/food_seed");
+  setTimeout(() => {
+    food_seed();
+  }, 1000);
+}
+
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
 //=========================== Routes==================================
