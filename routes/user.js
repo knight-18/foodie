@@ -1,5 +1,7 @@
 const express = require("express");
 const User = require("../models/user");
+const Restaurant = require("../models/restaurant");
+const Order = require("../models/order");
 const auth = require("../middleware/userauth");
 const router = express.Router();
 
@@ -343,6 +345,30 @@ router.delete("/me", auth, async (req, res) => {
     res.send(req.user);
   } catch (e) {
     res.status(500).send();
+  }
+});
+
+// route to create orders
+router.post("/order", auth, async (req, res) => {
+  try {
+    const user = req.user;
+    //console.log(user);
+    const { foods, restaurantId, payment } = req.body;
+    const restaurant = await Restaurant.findById(restaurantId);
+    //console.log(restaurantId);
+    if (!restaurant) {
+      return res.status(404).send("Restaurant Not found");
+    }
+    const order = new Order({
+      payment
+    });
+    await order.setUser(user);
+    await order.setRestaurant(restaurant);
+    await order.setFoods(foods);
+    const result = await order.save();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json(error);
   }
 });
 

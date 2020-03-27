@@ -15,6 +15,25 @@ if (process.env.NODE_ENV != "prod") {
 
 /**
  * @swagger
+ * path:
+ *  /restaurant/test:
+ *    get:
+ *      summary: check if restaurant router is configured correctly
+ *      tags: [Restaurant]
+ *      responses:
+ *        "200":
+ *          description: Test successfull
+ *          content:
+ *            text/html:
+ *              [SUCCESS]: Restaurant routes connected!
+ */
+
+router.get("/test", (req, res) => {
+  res.status(200);
+  res.send("[SUCCESS]: Restaurant routes connected!");
+});
+/**
+ * @swagger
  * tags:
  *   name: Restaurant
 
@@ -195,7 +214,7 @@ router.patch("/", auth, async (req, res) => {
   if (!isValidOperation) {
     return res.status(400).send({ error: "Invalid updates!" });
   }
-  if (update.contactNos && !updates.contactNos.isArray()) {
+  if (updates.contactNos && !updates.contactNos.isArray()) {
     return res.status(400).send({
       error:
         "contactNos should be an array containing all the numbers of the restaurants including the old ones!"
@@ -283,25 +302,6 @@ router.delete("/food", auth, async (req, res) => {
     console.log(error);
     res.status(500).json(error);
   }
-});
-/**
- * @swagger
- * path:
- *  /restaurant/test:
- *    get:
- *      summary: check if restaurant router is configured correctly
- *      tags: [Restaurant]
- *      responses:
- *        "200":
- *          description: Test successfull
- *          content:
- *            text/html:
- *              [SUCCESS]: Restaurant routes connected!
- */
-
-router.get("/test", (req, res) => {
-  res.status(200);
-  res.send("[SUCCESS]: Restaurant routes connected!");
 });
 
 module.exports = router;
