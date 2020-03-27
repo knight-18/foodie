@@ -5,6 +5,43 @@ const jwt = require("jsonwebtoken");
 
 const Schema = mongoose.Schema;
 
+/**
+ * @swagger
+ *  components:
+ *    schemas:
+ *      DeliveryGuy:
+ *        type: object
+ *        required:
+ *          - name
+ *          - phone
+ *          - username
+ *          - password
+ *          - tokens
+ *        properties:
+ *          name:
+ *            type: string
+ *          phone:
+ *            type: string
+ *            description: 10 digit phone no. with the country code too
+ *          username:
+ *            type: string
+ *            description: unique username of delivery boy
+ *          password:
+ *            type: string
+ *            format: password
+ *          orders:
+ *            type: array
+ *            items:
+ *              type: string
+ *          tokens:
+ *            type: array
+ *            items:
+ *              type: string
+ *
+ *
+ */
+
+
 const DeliveryGuySchema = new Schema(
   {
     name: {

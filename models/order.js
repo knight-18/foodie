@@ -63,14 +63,14 @@ const OrderSchema = new Schema(
         required: true
       },
       phone: {
-        type: mongoose.SchemaType.Phone,
+        type: mongoose.SchemaTypes.Phone,
         required: true
       }
     },
     status: {
       type: String,
       enum: ["RECIEVED", "LEFT", "DELIVERED", "CANCELED"],
-      defautl: "RECIEVED"
+      default: "RECIEVED"
     },
     payment: {
       method: {

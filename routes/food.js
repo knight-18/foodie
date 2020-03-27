@@ -36,6 +36,47 @@ const getResponse = function(foods) {
 };
 //=============ROUTES====================
 //find food
+
+/**
+ * @swagger
+ * path:
+ *  /food:  
+ *    get:
+ *      summary: get list of all available foods
+ *      tags: [food]
+ *       
+ *      responses:
+ *        "200":
+ *          description: Get food list successful
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: array
+ *                properties:
+ *                  foods:
+ *                    type: object
+ *                items:
+ *                  type: object
+ *                  properties:
+ *                    name:
+ *                      type: string
+ *                    _id:
+ *                      type: string
+ *                    restaurants:
+ *                      type: array
+ *                      items:
+ *                        type: object
+ *                        properties:
+ *                          name:
+ *                            type: string
+ *                          _id: 
+ *                            type: string
+ *                          price:
+ *                            type: string
+ *        "500":
+ *          description: Error 
+ * 
+ */
 router.get("/", async (req, res) => {
   try {
     const foods = await Food.find({})
@@ -45,13 +86,64 @@ router.get("/", async (req, res) => {
       res.status(404).send();
     }
     const response = getResponse(foods);
-    res.json(response);
+    res.status(200).json(response);
   } catch (e) {
     res.status(500).send();
   }
 });
 
 //create food
+
+/**
+ * @swagger
+ * path:
+ *   /food:
+ *     post:
+ *       summary: Route to create food if it already doesn't exists, while using it here, please copy the token from the login route and add it to authorize button on top
+ *       security:
+ *         - bearerAuth: []
+ *       required: true
+ *       tags: [food]
+ *       requestBody:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - name
+ *                 - price
+ *               properties:
+ *                 name: 
+ *                   type: string
+ *                   description: Name of the food to be added
+ *                 price:
+ *                   type: string
+ *                   description: Price of added food
+ *               example:
+ *                 name: Food1
+ *                 price: "999"
+ * 
+ *       responses:
+ *         "200":
+ *           description: Food added
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   foodid:
+ *                     type: string
+ *                   name: 
+ *                     type: string
+ *                   restaurants:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *         "500":
+ *           description: Error 
+ * 
+ */
+
 router.post("/", restAuth, async (req, res) => {
   const food = new Food({
     name: req.body.name,
