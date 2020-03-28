@@ -64,6 +64,7 @@ router.get("/test", (req, res) => {
  *                - name
  *                - password
  *                - email
+ *                - phonne
  *              properties:
  *                name:
  *                  type: string
@@ -74,16 +75,18 @@ router.get("/test", (req, res) => {
  *                  type: string
  *                address:
  *                  type: string
+ *                phone:
+ *                  type: string
  *              example:
  *                name: test
  *                email: test@test.com
  *                password: testtest
  *                address: test address
- *                phone: "+917346348343"
+ *                phone: "+918602313604"
  *
  *      responses:
  *        "201":
- *          description: Restaurant Created
+ *          description: User Created
  *          content:
  *            application/json:
  *              schema:
@@ -259,7 +262,7 @@ router.get("/me", auth, async (req, res) => {
  *    patch:
  *      security:
  *        - bearerAuth: []
- *      summary: read the user profile
+ *      summary: update the user profile
  *      tags: [user]
  *      requestBody:
  *        description: needs all info about the user
@@ -273,6 +276,8 @@ router.get("/me", auth, async (req, res) => {
  *                - name
  *                - password
  *                - email
+ *                - address
+ *                - phone
  *              properties:
  *                name:
  *                  type: string
@@ -339,14 +344,6 @@ router.patch("/me", auth, async (req, res) => {
  *        "400":
  *         description: Please Authenticate
  */
-router.delete("/me", auth, async (req, res) => {
-  try {
-    await req.user.remove();
-    res.send(req.user);
-  } catch (e) {
-    res.status(500).send();
-  }
-});
 
 // route to create orders
 router.post("/order", auth, async (req, res) => {

@@ -13,6 +13,26 @@ if (process.env.NODE_ENV != "prod") {
 
 //=========================== Routes==================================
 
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/test:
+ *    get:
+ *      summary: check if restaurant router is configured correctly
+ *      tags: [Restaurant]
+ *      responses:
+ *        "200":
+ *          description: Test successfull
+ *          content:
+ *            text/html:
+ *              [SUCCESS]: Restaurant routes connected!
+ */
+
+router.get("/test", (req, res) => {
+  res.status(200);
+  res.send("[SUCCESS]: Restaurant routes connected!");
+});
 /**
  * @swagger
  * path:
@@ -86,7 +106,7 @@ router.get("/", (req, res) => {
  *      tags: [Restaurant]
  *
  *      requestBody:
- *        description: needs all the info about the restuarant
+ *        description: needs all the info about the restaurant
  *        required: true
  *
  *        content:
@@ -109,10 +129,14 @@ router.get("/", (req, res) => {
  *                  type: object
  *                  required:
  *                    - name
+ *                    - rest_id
  *                    - contactNos
  *                    - address
+ *                    - password
  *                  properties:
  *                    name:
+ *                      type: string
+ *                    rest_id:
  *                      type: string
  *                    contactNos:
  *                      type: array
@@ -121,15 +145,20 @@ router.get("/", (req, res) => {
  *                      description: array of all the contact no's of the restaurant (each contact no. must be a string)
  *                    address:
  *                      type: string
+ *                    password:
+ *                      type: string
+ *                      description: minimum length of password must be 7
  *              example:
  *                super:
  *                  username: admin
  *                  password: password
  *                restaurant:
  *                  name: Restaurant 1
- *                  contactNos: ["+919432451728"]
+ *                  rest_id: rest3
+ *                  contactNos: ["+918602313604"]
  *                  address: Example address, example street, example city...
- *
+ *                  password: "12345678"
+ *  
  *
  *      responses:
  *        "201":
@@ -151,6 +180,55 @@ router.post("/", superAdminAuth, async (req, res) => {
 });
 
 //Login Route for restaurant
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/login:
+ *    post:
+ *      summary: login a restaurant
+ *      tags: [Restaurant]
+ *
+ *      requestBody:
+ *        description: needs restaurant ID (rest_id) and password
+ *        required: true
+ *
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - password
+ *                - rest_id
+ *              properties:
+ *                rest_id:
+ *                  type: string
+ *                password:
+ *                  type: string
+ *                  format: password
+ *              example:
+ *                rest_id: rest1
+ *                password: "12345678"
+ *
+ *      responses:
+ *        "200":
+ *          description: logged in
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - password
+ *                  - rest_id
+ *                properties:
+ *                  user:
+ *                    type: object
+ *                  token:
+ *                    type: string
+ *
+ *        "400":
+ *          description: An error occured
+ */
 router.post("/login", async (req, res) => {
   try {
     const restaurant = await Restaurant.findByCredentials(
@@ -158,13 +236,32 @@ router.post("/login", async (req, res) => {
       req.body.password
     );
     const token = await restaurant.generateAuthToken();
-    res.send({ restaurant, token });
+    res.status(200).send({ restaurant, token });
   } catch (e) {
     res.status(500).send(e);
   }
 });
 
 //Logout route for restaurant
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/logout:
+ *    post:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: logout a restaurant, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [Restaurant]
+ *      responses:
+ *        "200":
+ *          description: logged out
+ *        "400":
+ *          description: please authenticate
+ *        "401":
+ *          $ref: '#/components/responses/UnauthorizedError'
+ */
+
 router.post("/logout", auth, async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter(token => {
@@ -172,13 +269,32 @@ router.post("/logout", auth, async (req, res) => {
     });
     await req.user.save();
 
-    res.send("Logged Out");
+    res.status(200).send("Logged Out");
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 });
 
 //Route to logout all sessions
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/logoutAll:
+ *    post:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: logout a restaurant from All devices, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [Restaurant]
+ *      responses:
+ *        "200":
+ *          description: logged out
+ *        "400":
+ *          description: please authenticate
+ *        "500":
+ *          description: internal server error
+ */
+
 router.post("/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
@@ -188,22 +304,83 @@ router.post("/logoutAll", auth, async (req, res) => {
     res.status(500).send();
   }
 });
+
 //Route to read restaurant profile
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/me:
+ *    get:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: read the restaurant profile, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [Restaurant]
+ *      responses:
+ *        "200":
+ *          content:
+ *            application/json:
+ *              user:
+ *                type: object
+ *        "400":
+ *         description: Please Authenticate
+ */
+
 router.get("/me", auth, async (req, res) => {
   res.send(req.user);
 });
 
-//Route to delete restaurant profile
-router.delete("/me", auth, async (req, res) => {
-  try {
-    await req.user.remove();
-    res.send(req.user);
-  } catch (e) {
-    res.status(500).send();
-  }
-});
 
-// upadte route for the restaurant
+// update route for the restaurant
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant:
+ *    patch:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: Update the restaurant profile, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [Restaurant]
+ *      requestBody:
+ *        description: needs info to be updated
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - name
+ *                - password
+ *                - address
+ *                - contactNos
+ *              properties:
+ *                name:
+ *                  type: string
+ *                password:
+ *                  type: string
+ *                  format: password
+ *                address:
+ *                  type: string
+ *                contactNos:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                    description: array of all the contact no's of the restaurant (each contact no. must be a string)
+ *              example:
+ *                name: Restaurant Update
+ *                password: testtestupdate
+ *                address: test address update
+ *                contactNos: ["+918889986863","+918602313604"]
+ *      responses:
+ *        "200":
+ *          content:
+ *            application/json:
+ *              user:
+ *                type: object
+ *        "400":
+ *         description: Please Authenticate
+ */
 router.patch("/", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "password", "address", "contactNos"];
@@ -229,7 +406,48 @@ router.patch("/", auth, async (req, res) => {
   }
 });
 
-// get the details of the restarant for details page
+// get the details of the restaurant for details page
+
+
+/**
+ * @swagger
+ * path:
+ *  /restaurant/{id}:
+ *    get:
+ *      summary: get the restaurant profile for user
+ *      tags: [Restaurant]
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *      description: restaurant id is taken from the path parameters
+ *      responses:
+ *        "200":
+ *          description: Restaurant Information for user
+ *          content:
+ *            application/json:  
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  _id:
+ *                    type: string
+ *                    description: The restaurant object ID.
+ *                  address:
+ *                    type: string
+ *                    description: The restaurant address.
+ *                  contactNos:
+ *                    type: array
+ *                    items:
+ *                      type: string
+ *                    description: array of contact numbers of restaurants
+ *                  foods: 
+ *                    type: array
+ *                    items:
+ *                      type: string
+ *                    description: array of foods available at the restaurant
+ *        "500":
+ *          description: No such restaurant found
+ */
+
 router.get("/:_id", async (req, res) => {
   try {
     const restaurant = await Restaurant.findById(req.params._id).populate(
@@ -255,7 +473,41 @@ router.get("/:_id", async (req, res) => {
 });
 
 // route to add new food
-
+/**
+ * @swagger
+ * path:
+ *   /restaurant/food:
+ *     post:
+ *       summary: Add food to the restaurant
+ *       tags: [Restaurant]
+ *       security: 
+ *         - bearerAuth: []
+ *       requestBody:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: 
+ *                 - foodid
+ *                 - price
+ *               properties: 
+ *                 foodid:
+ *                   type: string
+ *                   description: Id of the food object
+ *                 price:
+ *                   type: string
+ *                   description: price at which the food is available in the restaurant
+ *       responses:
+ *         "200":
+ *           description: Food added to the restaurant
+ *         "404":
+ *           description: Food doesn't exists.Please add it first from food routes first
+ *         "500": 
+ *           description: Error
+ *         
+ *              
+ *         
+*/
 router.post("/food", auth, async (req, res) => {
   try {
     const food = await Food.findById(req.body.foodid);
@@ -263,7 +515,7 @@ router.post("/food", auth, async (req, res) => {
       res.status(404).json({
         error: "Food doesn't exist"
       });
-    }
+    } else{
     const restaurant = req.user;
     restaurant.foods.push({
       foodid: req.body.foodid,
@@ -273,14 +525,41 @@ router.post("/food", auth, async (req, res) => {
 
     food.restaurants.push(result._id);
     food.save();
-    res.status(200).end();
-  } catch (error) {
+    res.status(200).send("Food added to restaurant");
+  }} catch (error) {
     console.log(error);
     res.status(500).json(error);
   }
 });
 
 // route to delete food from the restaurant
+/**
+ * @swagger
+ * path:
+ *   /restaurant/food:
+ *     delete:
+ *       security:
+ *         - bearerAuth: []
+ *       summary: route to delete food from restaurant, while using it here, please copy the token from the login route(restaurant login) and add it to authorize button on top 
+ *       tags: [Restaurant]
+ *       requestBody:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - foodid
+ *               properties:
+ *                 foodid:
+ *                   type: string
+ *                   description: Object Id of the food to be deleted
+ *       responses:
+ *         "200":
+ *           description: Food deleted
+ *         "500":
+ *           description: Error 
+ *                   
+ */
 router.delete("/food", auth, async (req, res) => {
   try {
     const restaurant = req.user;
@@ -304,4 +583,7 @@ router.delete("/food", auth, async (req, res) => {
   }
 });
 
+
 module.exports = router;
+
+

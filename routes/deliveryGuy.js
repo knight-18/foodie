@@ -12,7 +12,40 @@ if (process.env.NODE_ENV != "prod") {
 
 //===========ROUTES==================================
 
+/**
+ * @swagger
+ * tags:
+ *   name: DeliveryGuy
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/test:
+ *    get:
+ *      summary: check if user router is configured correctly
+ *      tags: [DeliveryGuy]
+ *      responses:
+ *        "200":
+ *          description: Test successfull
+ *          content:
+ *            text/html:
+ *              [SUCCESS]: deliveryGuy routes connected!
+ */
+
+router.get("/test", (req, res) => {
+  res.status(200);
+  res.send("[SUCCESS]: DeliveryGuy routes connected!");
+});
+
 //Router to access all delivery boys.Only SuperAdmin can access list of all delivery boys
+
 router.get("/", superAdminAuth, async (req, res) => {
   try {
     var deliveryGuy = await DeliveryGuy.find({});
@@ -38,6 +71,56 @@ router.post("/", superAdminAuth, async (req, res) => {
 });
 
 //Login Route for deliveryGuy
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/login:
+ *    post:
+ *      summary: login a deliveryGuy
+ *      tags: [DeliveryGuy]
+ *
+ *      requestBody:
+ *        description: needs deliveryGuy username and password
+ *        required: true
+ *
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - password
+ *                - username
+ *              properties:
+ *                username:
+ *                  type: string
+ *                password:
+ *                  type: string
+ *                  format: password
+ *              example:
+ *                username: dguy1
+ *                password: "12345678"
+ *
+ *      responses:
+ *        "200":
+ *          description: logged in
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                required:
+ *                  - password
+ *                  - username
+ *                properties:
+ *                  user:
+ *                    type: object
+ *                  token:
+ *                    type: string
+ *
+ *        "400":
+ *          description: An error occured
+ */
+
 router.post("/login", async (req, res) => {
   try {
     const deliveryGuy = await DeliveryGuy.findByCredentials(
@@ -52,6 +135,25 @@ router.post("/login", async (req, res) => {
 });
 
 //Logout route for deliveryGuy
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/logout:
+ *    post:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: logout a deliveryGuy, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [DeliveryGuy]
+ *      responses:
+ *        "200":
+ *          description: logged out
+ *        "400":
+ *          description: please authenticate
+ *        "401":
+ *          $ref: '#/components/responses/UnauthorizedError'
+ */
+
 router.post("/logout", auth, async (req, res) => {
   try {
     req.user.tokens = req.user.tokens.filter(token => {
@@ -66,6 +168,25 @@ router.post("/logout", auth, async (req, res) => {
 });
 
 //Route to logout all sessions
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/logoutAll:
+ *    post:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: logout a deliveryGuy from All devices, while using it here, please copy the token from the login route and add it to authorize button on top
+ *      tags: [DeliveryGuy]
+ *      responses:
+ *        "200":
+ *          description: logged out
+ *        "400":
+ *          description: please authenticate
+ *        "500":
+ *          description: internal server error
+ */
+
 router.post("/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
@@ -77,9 +198,70 @@ router.post("/logoutAll", auth, async (req, res) => {
 });
 
 //Route to read deliveryGuy profile
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/me:
+ *    get:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: read the deliveryGuy profile
+ *      tags: [DeliveryGuy]
+ *      responses:
+ *        "200":
+ *          content:
+ *            application/json:
+ *              user:
+ *                type: object
+ *        "400":
+ *         description: Please Authenticate
+ */
+
 router.get("/me", auth, async (req, res) => {
   res.send(req.user);
 });
+
+//Update route for delivery guy
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/me:
+ *    patch:
+ *      security:
+ *        - bearerAuth: []
+ *      summary: update the deliveryGUy profile
+ *      tags: [DeliveryGuy]
+ *      requestBody:
+ *        description: needs info to be upated about the deliveryGuy
+ *        required: true
+ *
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - password
+ *                - phone
+ *              properties:
+ *                password:
+ *                  type: string
+ *                  format: password
+ *                phone:
+ *                  type: string
+ *              example:
+ *                password: "87654321"
+ *                phone: "+918602313604"
+ *      responses:
+ *        "200":
+ *          content:
+ *            application/json:
+ *              user:
+ *                type: object
+ *        "400":
+ *         description: Please Authenticate
+ */
 
 router.patch("/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);

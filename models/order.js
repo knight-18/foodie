@@ -55,7 +55,12 @@ const OrderSchema = new Schema(
         type: String
       },
       phone: {
+<<<<<<< HEAD
         type: mongoose.SchemaTypes.Phone
+=======
+        type: mongoose.SchemaTypes.Phone,
+        required: true
+>>>>>>> a0d55bdc9e50e5f9651dcfe50de68ae130a2ebaa
       }
     },
     status: {

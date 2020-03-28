@@ -14,15 +14,23 @@ const Schema = mongoose.Schema;
  *        type: object
  *        required:
  *          - name
+ *          - password
+ *          - rest_id
  *          - address
+ *          - contactNos
+ *          - tokens
  *        properties:
  *          name:
  *            type: string
+ *            description: Name of the restaurant
+ *          rest_id:
+ *            type: string
+ *            description: Unique ID of the restaurant.
  *          contactNos:
  *            type: array
  *            items:
  *              type: string
- *            description: Array of all the contact no.s of a restaurant
+ *            description: Array of all the contact nos of a restaurant
  *          address:
  *            type: string
  *          orders:
@@ -30,6 +38,10 @@ const Schema = mongoose.Schema;
  *            items:
  *              type: string
  *            description: Array of all the orders of a restaurant
+ *          tokens:
+ *            type: array
+ *            items:
+ *              type: string
  *          foods:
  *            type: array
  *            items:

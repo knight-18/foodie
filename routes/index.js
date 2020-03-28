@@ -11,7 +11,7 @@ const deliveryGuy = require("./deliveryGuy")
 router.use("/api/user", user);
 router.use("/api/restaurant", restaurant);
 router.use("/api/food", food);
-router.use("/api/deliveryGuy", deliveryGuy)
+router.use("/api/deliveryguy", deliveryGuy)
 
 // error handling
 router.use((eq, res, next) => {
