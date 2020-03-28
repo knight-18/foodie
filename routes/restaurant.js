@@ -6,13 +6,12 @@ const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
 
 //==============Seeding===============
-if (process.env.NODE_ENV != "prod") {
-  const restaurant_seed = require("../seeds/restaurant_seed");
-  restaurant_seed();
-}
+// if (process.env.NODE_ENV != "prod") {
+//   const restaurant_seed = require("../seeds/restaurant_seed");
+//   restaurant_seed();
+// }
 
 //=========================== Routes==================================
-
 
 /**
  * @swagger
@@ -158,7 +157,7 @@ router.get("/", (req, res) => {
  *                  contactNos: ["+918602313604"]
  *                  address: Example address, example street, example city...
  *                  password: "12345678"
- *  
+ *
  *
  *      responses:
  *        "201":
@@ -330,7 +329,6 @@ router.get("/me", auth, async (req, res) => {
   res.send(req.user);
 });
 
-
 // update route for the restaurant
 
 /**
@@ -408,7 +406,6 @@ router.patch("/", auth, async (req, res) => {
 
 // get the details of the restaurant for details page
 
-
 /**
  * @swagger
  * path:
@@ -424,7 +421,7 @@ router.patch("/", auth, async (req, res) => {
  *        "200":
  *          description: Restaurant Information for user
  *          content:
- *            application/json:  
+ *            application/json:
  *              schema:
  *                type: object
  *                properties:
@@ -439,7 +436,7 @@ router.patch("/", auth, async (req, res) => {
  *                    items:
  *                      type: string
  *                    description: array of contact numbers of restaurants
- *                  foods: 
+ *                  foods:
  *                    type: array
  *                    items:
  *                      type: string
@@ -480,17 +477,17 @@ router.get("/:_id", async (req, res) => {
  *     post:
  *       summary: Add food to the restaurant
  *       tags: [Restaurant]
- *       security: 
+ *       security:
  *         - bearerAuth: []
  *       requestBody:
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               required: 
+ *               required:
  *                 - foodid
  *                 - price
- *               properties: 
+ *               properties:
  *                 foodid:
  *                   type: string
  *                   description: Id of the food object
@@ -502,12 +499,12 @@ router.get("/:_id", async (req, res) => {
  *           description: Food added to the restaurant
  *         "404":
  *           description: Food doesn't exists.Please add it first from food routes first
- *         "500": 
+ *         "500":
  *           description: Error
- *         
- *              
- *         
-*/
+ *
+ *
+ *
+ */
 router.post("/food", auth, async (req, res) => {
   try {
     const food = await Food.findById(req.body.foodid);
@@ -515,18 +512,19 @@ router.post("/food", auth, async (req, res) => {
       res.status(404).json({
         error: "Food doesn't exist"
       });
-    } else{
-    const restaurant = req.user;
-    restaurant.foods.push({
-      foodid: req.body.foodid,
-      price: req.body.price
-    });
-    const result = await restaurant.save();
+    } else {
+      const restaurant = req.user;
+      restaurant.foods.push({
+        foodid: req.body.foodid,
+        price: req.body.price
+      });
+      const result = await restaurant.save();
 
-    food.restaurants.push(result._id);
-    food.save();
-    res.status(200).send("Food added to restaurant");
-  }} catch (error) {
+      food.restaurants.push(result._id);
+      food.save();
+      res.status(200).send("Food added to restaurant");
+    }
+  } catch (error) {
     console.log(error);
     res.status(500).json(error);
   }
@@ -540,7 +538,7 @@ router.post("/food", auth, async (req, res) => {
  *     delete:
  *       security:
  *         - bearerAuth: []
- *       summary: route to delete food from restaurant, while using it here, please copy the token from the login route(restaurant login) and add it to authorize button on top 
+ *       summary: route to delete food from restaurant, while using it here, please copy the token from the login route(restaurant login) and add it to authorize button on top
  *       tags: [Restaurant]
  *       requestBody:
  *         content:
@@ -557,8 +555,8 @@ router.post("/food", auth, async (req, res) => {
  *         "200":
  *           description: Food deleted
  *         "500":
- *           description: Error 
- *                   
+ *           description: Error
+ *
  */
 router.delete("/food", auth, async (req, res) => {
   try {
@@ -583,7 +581,4 @@ router.delete("/food", auth, async (req, res) => {
   }
 });
 
-
 module.exports = router;
-
-

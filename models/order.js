@@ -55,12 +55,7 @@ const OrderSchema = new Schema(
         type: String
       },
       phone: {
-<<<<<<< HEAD
         type: mongoose.SchemaTypes.Phone
-=======
-        type: mongoose.SchemaTypes.Phone,
-        required: true
->>>>>>> a0d55bdc9e50e5f9651dcfe50de68ae130a2ebaa
       }
     },
     status: {
@@ -127,19 +122,21 @@ TotalVirtual.get(async () => {
 OrderSchema.methods.setFoods = async function(foods) {
   const order = this;
   try {
-    const arr = foods.map(async ({ foodid, quantity }) => {
+    const arr = foods.map(async ({ foodid, quantity, price }) => {
       food = await Food.findById(foodid);
       //console.log(food);
       if (!food) {
         throw new Error("Invalid food in the array");
       }
+
       return {
         _id: foodid,
         name: food.name,
-        price: food.price,
+        price: price,
         quantity: quantity
       };
     });
+    console.log(arr);
     order.foods = arr;
   } catch (error) {
     console.log(error);

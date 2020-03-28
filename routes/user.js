@@ -6,10 +6,10 @@ const auth = require("../middleware/userauth");
 const router = express.Router();
 
 //==============Seeding===============
-if (process.env.NODE_ENV != "prod") {
-  const user_seed = require("../seeds/user_seed");
-  user_seed();
-}
+// if (process.env.NODE_ENV != "prod") {
+//   const user_seed = require("../seeds/user_seed");
+//   user_seed();
+// }
 
 //=========================== Routes==================================
 
@@ -325,43 +325,91 @@ router.patch("/me", auth, async (req, res) => {
     res.status(400).send(e);
   }
 });
-
 /**
  * @swagger
  * path:
- *  /user/me:
- *    delete:
- *      security:
- *        - bearerAuth: []
- *      summary: read the user profile
+ *  /user/order:
+ *    post:
+ *      summary: create order
  *      tags: [user]
+ *
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - password
+ *                - email
+ *              properties:
+ *                restaurantId:
+ *                  type: string
+ *                  description: Id of the restaurant that is to be ordered from
+ *                foods:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      foodid:
+ *                        type: string
+ *                      quantity:
+ *                        type: number
+ *                payment:
+ *                  type: object
+ *                  properties:
+ *                    method:
+ *                      type: string
+ *                      description: only one of "UPI" "COD" or "CARD"
+ *                    status:
+ *                      type: string
+ *                      description: only one of "UNPAID" or "PAID"
+ *
  *      responses:
  *        "200":
+ *          description: logged in
  *          content:
  *            application/json:
- *              user:
+ *              schema:
  *                type: object
- *        "400":
- *         description: Please Authenticate
+ *                required:
+ *                  - password
+ *                  - email
+ *                properties:
+ *                  user:
+ *                    type: object
+ *                  token:
+ *                    type: string
+ *
+ *        "500":
+ *          description: An error occured
  */
 
 // route to create orders
 router.post("/order", auth, async (req, res) => {
   try {
     const user = req.user;
-    //console.log(user);
     const { foods, restaurantId, payment } = req.body;
     const restaurant = await Restaurant.findById(restaurantId);
-    //console.log(restaurantId);
     if (!restaurant) {
       return res.status(404).send("Restaurant Not found");
     }
+    const newFoods = foods.map(obj => {
+      const price = restaurant.foods.find(doc => {
+        return doc.foodid == obj.foodid;
+      }).price;
+      return {
+        ...obj,
+        price: price
+      };
+    });
     const order = new Order({
       payment
     });
+    //console.log(newFoods);
     await order.setUser(user);
     await order.setRestaurant(restaurant);
-    await order.setFoods(foods);
+    await order.setFoods(newFoods);
     const result = await order.save();
     res.status(200).json(result);
   } catch (error) {
