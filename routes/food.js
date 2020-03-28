@@ -5,6 +5,13 @@ const Food = require("../models/food.js");
 const Restaurant = require("../models/restaurant");
 const restAuth = require("../middleware/restauth");
 
+// if (process.env.NODE_ENV != "prod") {
+//   const food_seed = require("../seeds/food_seed");
+//   setTimeout(() => {
+//     food_seed();
+//   }, 1000);
+// }
+
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
 //=========================== Routes==================================
@@ -40,11 +47,11 @@ const getResponse = function(foods) {
 /**
  * @swagger
  * path:
- *  /food:  
+ *  /food:
  *    get:
  *      summary: get list of all available foods
  *      tags: [food]
- *       
+ *
  *      responses:
  *        "200":
  *          description: Get food list successful
@@ -69,13 +76,13 @@ const getResponse = function(foods) {
  *                        properties:
  *                          name:
  *                            type: string
- *                          _id: 
+ *                          _id:
  *                            type: string
  *                          price:
  *                            type: string
  *        "500":
- *          description: Error 
- * 
+ *          description: Error
+ *
  */
 router.get("/", async (req, res) => {
   try {
@@ -113,7 +120,7 @@ router.get("/", async (req, res) => {
  *                 - name
  *                 - price
  *               properties:
- *                 name: 
+ *                 name:
  *                   type: string
  *                   description: Name of the food to be added
  *                 price:
@@ -122,7 +129,7 @@ router.get("/", async (req, res) => {
  *               example:
  *                 name: Food1
  *                 price: "999"
- * 
+ *
  *       responses:
  *         "200":
  *           description: Food added
@@ -133,15 +140,15 @@ router.get("/", async (req, res) => {
  *                 properties:
  *                   foodid:
  *                     type: string
- *                   name: 
+ *                   name:
  *                     type: string
  *                   restaurants:
  *                     type: array
  *                     items:
  *                       type: string
  *         "500":
- *           description: Error 
- * 
+ *           description: Error
+ *
  */
 
 router.post("/", restAuth, async (req, res) => {

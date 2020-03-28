@@ -13,16 +13,13 @@ const OrderSchema = new Schema(
       {
         _id: {
           type: Schema.Types.ObjectId,
-          ref: "Food",
-          required: true
+          ref: "Food"
         },
         price: {
-          type: Number,
-          required: true
+          type: Number
         },
         name: {
-          type: String,
-          required: true
+          type: String
         },
         quantity: {
           type: Number,
@@ -33,23 +30,19 @@ const OrderSchema = new Schema(
     restaurant: {
       _id: {
         type: Schema.Types.ObjectId,
-        ref: "Restaurant",
-        required: true
+        ref: "Restaurant"
       },
       name: {
-        type: String,
-        required: true
+        type: String
       }
     },
     user: {
       _id: {
         type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+        ref: "User"
       },
       name: {
-        type: String,
-        required: true
+        type: String
       }
     },
     deliveryGuy: {
@@ -59,12 +52,10 @@ const OrderSchema = new Schema(
         default: null
       },
       name: {
-        type: String,
-        required: true
+        type: String
       },
       phone: {
-        type: mongoose.SchemaTypes.Phone,
-        required: true
+        type: mongoose.SchemaTypes.Phone
       }
     },
     status: {
@@ -97,25 +88,25 @@ const OrderSchema = new Schema(
 const TotalVirtual = OrderSchema.virtual("total");
 
 // RestaurantNameVirtual.get(async () => {
-//   return (await Restaurant.findById(this.restaurant)).name;
+//   return (await Restaurant.findById(order.restaurant)).name;
 // });
 
 // UserNameVirtual.get(async () => {
-//   return (await User.findById(this.user)).name;
+//   return (await User.findById(order.user)).name;
 // });
 
 // DeliveryGuyNameVirtual.get(async () => {
-//   if (!this.deliveryGuy) {
+//   if (!order.deliveryGuy) {
 //     return null;
 //   }
-//   return (await DeliveryGuy.findById(this.deliveryGuy)).name;
+//   return (await DeliveryGuy.findById(order.deliveryGuy)).name;
 // });
 
 // DeliveryGuyPhoneVirtual.get(async () => {
-//   if (!this.deliveryGuy) {
+//   if (!order.deliveryGuy) {
 //     return null;
 //   }
-//   return (await DeliveryGuy.findById(this.deliveryGuy)).phone;
+//   return (await DeliveryGuy.findById(order.deliveryGuy)).phone;
 // });
 
 TotalVirtual.get(async () => {
@@ -128,59 +119,87 @@ TotalVirtual.get(async () => {
 
 // ========================================= Methods =====================================================
 // method to set the food array
-OrderSchema.methods.setFoods = async foods => {
-  if (!foods.isArray()) {
-    throw new Error("Invalid foods array, please make sure foods is an array");
+OrderSchema.methods.setFoods = async function(foods) {
+  const order = this;
+  try {
+    const arr = foods.map(async ({ foodid, quantity, price }) => {
+      food = await Food.findById(foodid);
+      //console.log(food);
+      if (!food) {
+        throw new Error("Invalid food in the array");
+      }
+
+      return {
+        _id: foodid,
+        name: food.name,
+        price: price,
+        quantity: quantity
+      };
+    });
+    console.log(arr);
+    order.foods = arr;
+  } catch (error) {
+    console.log(error);
   }
-  const arr = foods.map(async ({ foodid, quantity }) => {
-    food = await Food.findById(foodid);
-    return {
-      _id: foodid,
-      name: food.name,
-      price: food.price,
-      quantity: quantity
-    };
-  });
-  this.foods = arr;
 };
 
 // method to set the user
-OrderSchema.methods.setUser = async user => {
-  // Add this to the users orders list
-  user.orders.push(this._id);
-  // Add users name and id to this.user
-  this.user._id = user._id;
-  this.user.name = user.name;
-  // Save them both
-  await this.save;
-  await user.save();
+OrderSchema.methods.setUser = async function(user) {
+  const order = this;
+  try {
+    // Add order to the users orders list
+    user.orders.push(order._id);
+    // Add users name and id to order.user
+    order.user = {
+      _id: user._id,
+      name: user.name
+    };
+    // Save them both
+
+    await user.save();
+    await order.save();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // method to set the restaurant
-OrderSchema.methods.setRestaurant = async restaurant => {
-  // Add this to the users orders list
-  restaurant.orders.push(this._id);
-  // Add users name and id to this.user
-  this.restaurant._id = user._id;
-  restaurant;
-  this.restaurant.name = user.name;
-  // Save them both
-  await this.save;
-  await restaurant.save();
+OrderSchema.methods.setRestaurant = async function(restaurant) {
+  const order = this;
+  try {
+    // Add order to the users orders list
+    restaurant.orders.push(order._id);
+    // Add users name and id to order.user
+    order.restaurant = {
+      _id: restaurant._id,
+      name: restaurant.name
+    };
+    // Save them both
+    await order.save();
+    await restaurant.save();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // method to assign the deliveryGuy
-OrderSchema.methods.setDeliveryGuy = async deliveryGuy => {
-  // Add this to the users orders list
-  deliveryGuy.orders.push(this._id);
-  // Add users name and id to this.user
-  this.deliveryGuy._id = user._id;
-  deliveryGuy;
-  this.deliveryGuy.name = user.name;
-  this.deliveryGuy.phone = user.phone;
-  // Save them both
-  await this.save;
-  await deliveryGuy.save();
+OrderSchema.methods.setDeliveryGuy = async function(deliveryGuy) {
+  const order = this;
+  try {
+    // Add order to the users orders list
+    deliveryGuy.orders.push(order._id);
+    // Add users name and id to order.user
+    order.deliveryGuy._id = {
+      _id: deliveryGuy._id,
+      name: deliveryGuy.name,
+      phone: deliveryGuy.phone
+    };
+    // Save them both
+    await order.save();
+    await deliveryGuy.save();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 // Uncomment when done with schema
