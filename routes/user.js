@@ -139,6 +139,9 @@ router.post("/", async (req, res) => {
  *                password:
  *                  type: string
  *                  format: password
+ *              example:
+ *                email: user1@example.com
+ *                password: "12345678"
  *
  *      responses:
  *        "200":
@@ -332,6 +335,8 @@ router.patch("/me", auth, async (req, res) => {
  *    post:
  *      summary: create order
  *      tags: [user]
+ *      security:
+ *        - bearerAuth: []
  *
  *      requestBody:
  *        required: true
@@ -367,20 +372,71 @@ router.patch("/me", auth, async (req, res) => {
  *
  *      responses:
  *        "200":
- *          description: logged in
+ *          description: order created
  *          content:
  *            application/json:
  *              schema:
  *                type: object
- *                required:
- *                  - password
- *                  - email
  *                properties:
+ *                  restaurant:
+ *                    type: object
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                        description: ObjectId of Restaurant
+ *                      name:
+ *                        type: string
+ *                        description: Name of the Restaurant
  *                  user:
  *                    type: object
- *                  token:
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                        description: ObjectId of User
+ *                      name:
+ *                         type: string
+ *                         description: Name of the User
+ *                  deliveryGuy:
+ *                    type: object
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                  payment:
+ *                    type: object
+ *                    properties:
+ *                      status:
+ *                        type: string
+ *                        description: Payment status of the order i.e. "UNPAID", "PAID"
+ *                      total:
+ *                        type: number
+ *                        description: Total amount of the order to be paid
+ *                      method: 
+ *                        type: string
+ *                        description: Mode of payment i.e. "COD", "UPI", "CARD"
+ *                  status:
  *                    type: string
- *
+ *                    decription: Status of the order i.e. "RECIEVED", "LEFT", "DELIVERED", "CANCELED"
+ *                  _id:
+ *                    type: string
+ *                    description: ObjectId of Order
+ *                  foods:
+ *                    type: array
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        quantity:
+ *                          type: number
+ *                          description:
+ *                        _id:
+ *                          type: string
+ *                          description: ObjectId of Food
+ *                        price:
+ *                          type: number
+ *                          description: Price of the food
+ *                        name:
+ *                          type: string
+ *                          description: Name of the Food
+ *                     
  *        "500":
  *          description: An error occured
  */
@@ -394,25 +450,30 @@ router.post("/order", auth, async (req, res) => {
     if (!restaurant) {
       return res.status(404).send("Restaurant Not found");
     }
+    const length = foods.length
     const newFoods = foods.map(obj => {
       const price = restaurant.foods.find(doc => {
         return doc.foodid == obj.foodid;
       }).price;
       return {
         ...obj,
-        price: price
+        price: price,
+        length: length
       };
     });
     const order = new Order({
       payment
     });
-    //console.log(newFoods);
+    //console.log(newFoods); 
+    order.setTotal(newFoods)
     await order.setUser(user);
     await order.setRestaurant(restaurant);
     await order.setFoods(newFoods);
     const result = await order.save();
+    
     res.status(200).json(result);
   } catch (error) {
+    console.log(error)
     res.status(500).json(error);
   }
 });
