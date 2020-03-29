@@ -73,6 +73,10 @@ const OrderSchema = new Schema(
         type: String,
         enum: ["UNPAID", "PAID"],
         default: "UNPAID"
+      },
+      total: {
+        type: Number,
+        default: 0
       }
     }
   },
@@ -85,7 +89,6 @@ const OrderSchema = new Schema(
 // const UserNameVirtual = OrderSchema.virtual("user-name");
 // const DeliveryGuyNameVirtual = OrderSchema.virtual("deliveryGuy-name");
 // const DeliveryGuyPhoneVirtual = OrderSchema.virtual("deliveryGuy-phone");
-const TotalVirtual = OrderSchema.virtual("total");
 
 // RestaurantNameVirtual.get(async () => {
 //   return (await Restaurant.findById(order.restaurant)).name;
@@ -109,35 +112,57 @@ const TotalVirtual = OrderSchema.virtual("total");
 //   return (await DeliveryGuy.findById(order.deliveryGuy)).phone;
 // });
 
-TotalVirtual.get(async () => {
-  var total = 0;
-  this.foods.map(food => {
-    total += food.price * food.quantity;
-  });
-  return total;
-});
+
+OrderSchema.methods.setTotal = async function (foods){
+  const order = this
+  try {
+    for(let i = 0; i < foods.length; i++){
+      order.payment.total += foods[i].price * foods[i].quantity
+    }
+  } catch (error) {
+    
+  }
+}
 
 // ========================================= Methods =====================================================
 // method to set the food array
 OrderSchema.methods.setFoods = async function(foods) {
   const order = this;
   try {
-    const arr = foods.map(async ({ foodid, quantity, price }) => {
-      food = await Food.findById(foodid);
-      //console.log(food);
-      if (!food) {
-        throw new Error("Invalid food in the array");
-      }
+      
+    for(let i = 0; i < foods.length;i++ ){
+      const food = await Food.findById(foods[i].foodid)
+      const arr = 
+        {
+          _id: foods[i].foodid,
+          price: foods[i].price,
+          name: food.name,
+          quantity: foods[i].quantity
+        }
+      
 
-      return {
-        _id: foodid,
-        name: food.name,
-        price: price,
-        quantity: quantity
-      };
-    });
-    console.log(arr);
-    order.foods = arr;
+      console.log(arr)
+      order.foods.push(arr)
+    }    
+    // const arr = foods.map(async ({ foodid, quantity, price }) => {
+    //   var food = await Food.findById(foodid);
+    //   console.log(food)
+    //   console.log(price)
+    //   console.log(quantity)
+    //   console.log(food.name);
+    //   if (!food) {
+    //     throw new Error("Invalid food in the array");
+    //   }
+
+    //   return {
+    //     _id: foodid,
+    //     name: food.name,
+    //     price: price,
+    //     quantity: quantity
+    //   };
+    // });
+    // console.log(arr);
+    // order.foods = arr;
   } catch (error) {
     console.log(error);
   }
