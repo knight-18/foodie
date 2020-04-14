@@ -19,7 +19,6 @@ function connectDB() {
     url,
     {
       useNewUrlParser: true,
-      useFindAndModify: false,
       useUnifiedTopology: true,
     },
     (err) => {
