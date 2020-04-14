@@ -29,6 +29,9 @@ const options = {
       {
         url: `https://foodie-test-deployment.herokuapp.com/api/`,
       },
+      {
+        url: `https://localhost:${PORT}/api/`,
+      },
     ],
   },
   apis: ["./routes/*.js", "./models/*.js"],
