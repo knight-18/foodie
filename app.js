@@ -22,16 +22,16 @@ const options = {
       description: "Backend for the foodie app",
       contact: {
         name: "Foodie",
-        url: "https://www.github.com/KaviiSuri/foodie"
-      }
+        url: "https://www.github.com/KaviiSuri/foodie",
+      },
     },
     servers: [
       {
-        url: `http://localhost:${PORT}/api/`
-      }
-    ]
+        url: `https://foodie-test-deployment.herokuapp.com/api/`,
+      },
+    ],
   },
-  apis: ["./routes/*.js", "./models/*.js"]
+  apis: ["./routes/*.js", "./models/*.js"],
 };
 
 const specs = swaggerJsdoc(options);
@@ -39,7 +39,7 @@ app.use("/api/docs", swaggerUi.serve);
 app.get(
   "/api/docs",
   swaggerUi.setup(specs, {
-    explorer: true
+    explorer: true,
   })
 );
 
