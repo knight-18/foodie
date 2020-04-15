@@ -64,7 +64,7 @@ router.get("/test", (req, res) => {
  *                - name
  *                - password
  *                - email
- *                - phonne
+ *                - phone
  *              properties:
  *                name:
  *                  type: string
@@ -80,7 +80,7 @@ router.get("/test", (req, res) => {
  *              example:
  *                name: test
  *                email: test@test.com
- *                password: testtest
+ *                password: "12345678"
  *                address: test address
  *                phone: "+918602313604"
  *
@@ -123,7 +123,7 @@ router.post("/", async (req, res) => {
  *      tags: [user]
  *
  *      requestBody:
- *        description: needs all info about the user
+ *        description: needs phone and password of the user
  *        required: true
  *
  *        content:
@@ -132,15 +132,15 @@ router.post("/", async (req, res) => {
  *              type: object
  *              required:
  *                - password
- *                - email
+ *                - phone
  *              properties:
- *                email:
+ *                phone:
  *                  type: string
  *                password:
  *                  type: string
  *                  format: password
  *              example:
- *                email: user1@example.com
+ *                phone: "+918602313604" 
  *                password: "12345678"
  *
  *      responses:
@@ -167,7 +167,7 @@ router.post("/", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findByCredentials(
-      req.body.email,
+      req.body.phone,
       req.body.password
     );
     const token = await user.generateAuthToken();
