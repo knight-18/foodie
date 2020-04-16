@@ -52,7 +52,8 @@ const userSchema = new Schema(
     },
     phone: {
       type: mongoose.SchemaTypes.Phone,
-      required: true
+      required: true,
+      unique: true
     },
     email: {
       type: String,
