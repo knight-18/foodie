@@ -123,8 +123,8 @@ userSchema.methods.generateAuthToken = async function() {
 };
 
 //function to find user by email and verify password
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email });
+userSchema.statics.findByCredentials = async (phone, password) => {
+  const user = await User.findOne({ phone });
 
   if (!user) {
     throw new Error("Unable to login");
