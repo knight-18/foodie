@@ -125,7 +125,7 @@ const OrderSchema = new Schema(
         type: String
       },
       phone: {
-        type: mongoose.SchemaTypes.Phone
+        type: String
       }
     },
     status: {
