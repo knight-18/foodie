@@ -87,7 +87,7 @@ const RestaurantSchema = new Schema(
     // Array of of phone no.s as a restaurant may have more than one phone no.
     contactNos: [
       {
-        type: mongoose.SchemaTypes.Phone,
+        type: String,
         allowBlank: false
       }
     ],

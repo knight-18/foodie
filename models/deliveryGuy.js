@@ -22,7 +22,7 @@ const Schema = mongoose.Schema;
  *            type: string
  *          phone:
  *            type: string
- *            description: 10 digit phone no. with the country code too
+ *            description: 10 digit phone no.
  *          username:
  *            type: string
  *            description: unique username of delivery boy
