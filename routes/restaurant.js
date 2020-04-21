@@ -154,7 +154,7 @@ router.get("/", (req, res) => {
  *                restaurant:
  *                  name: Restaurant 1
  *                  rest_id: rest3
- *                  contactNos: ["+918602313604"]
+ *                  contactNos: ["8602313604"]
  *                  address: Example address, example street, example city...
  *                  password: "12345678"
  *
@@ -298,9 +298,9 @@ router.post("/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.send();
+    res.send("Logged out all sessions");
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 });
 
@@ -369,7 +369,7 @@ router.get("/me", auth, async (req, res) => {
  *                name: Restaurant Update
  *                password: testtestupdate
  *                address: test address update
- *                contactNos: ["+918889986863","+918602313604"]
+ *                contactNos: ["8889986863","8602313604"]
  *      responses:
  *        "200":
  *          content:

@@ -82,7 +82,7 @@ router.get("/test", (req, res) => {
  *                email: test@test.com
  *                password: "12345678"
  *                address: test address
- *                phone: "+918602313604"
+ *                phone: "8602313604"
  *
  *      responses:
  *        "201":
@@ -140,7 +140,7 @@ router.post("/", async (req, res) => {
  *                  type: string
  *                  format: password
  *              example:
- *                phone: "+918602313604" 
+ *                phone: "8602313604" 
  *                password: "12345678"
  *
  *      responses:
@@ -204,9 +204,9 @@ router.post("/logout", auth, async (req, res) => {
     });
     await req.user.save();
 
-    res.send();
+    res.send("Logged out");
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 });
 
@@ -231,9 +231,9 @@ router.post("/logoutAll", auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.send();
+    res.send("Logged out all sessions");
   } catch (e) {
-    res.status(500).send();
+    res.status(500).send(e);
   }
 });
 /**
@@ -298,7 +298,7 @@ router.get("/me", auth, async (req, res) => {
  *                email: test@test.com
  *                password: testtest
  *                address: test address
- *                phone: "+917346348343"
+ *                phone: "7346348343"
  *      responses:
  *        "200":
  *          content:
@@ -473,7 +473,6 @@ router.post("/order", auth, async (req, res) => {
     
     res.status(200).json(result);
   } catch (error) {
-    console.log(error)
     res.status(500).json(error);
   }
 });
