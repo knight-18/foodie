@@ -24,7 +24,7 @@ const Schema = mongoose.Schema;
  *            type: string
  *          phone:
  *            type: string
- *            description: 10 digit phone no. with the country code too
+ *            description: 10 digit phone no. 
  *          email:
  *            type: string
  *          password:
@@ -51,7 +51,7 @@ const userSchema = new Schema(
       required: true
     },
     phone: {
-      type: mongoose.SchemaTypes.Phone,
+      type: String,
       required: true,
       unique: true
     },
