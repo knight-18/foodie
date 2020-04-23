@@ -8,6 +8,7 @@ function connectDB() {
       break;
     case "prod":
       /* make url your production connection string for database */
+      url = process.env.MONGODB_URL 
       break;
     default:
       // In dev mode by default
