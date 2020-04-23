@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const multer = require('multer')
+const sharp = require('sharp')
 const Restaurant = require("../models/restaurant");
 const Food = require("../models/food");
 const superAdminAuth = require("../middleware/super_admin_middleware");
@@ -10,6 +12,22 @@ const auth = require("../middleware/restauth");
 //   const restaurant_seed = require("../seeds/restaurant_seed");
 //   restaurant_seed();
 // }
+
+//Function to upload picture of restaurant
+const upload = multer( {
+  limits:{
+      fileSize:1000000
+  },
+  fileFilter(req, file, cb) {
+
+      if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+          cb(new Error('Please upload jpg,jpeg or png file only'))
+      }
+
+      cb(undefined, true)
+  }
+} )
+
 
 //=========================== Routes==================================
 
@@ -462,7 +480,8 @@ router.get("/:_id", async (req, res) => {
       name: restaurant.name,
       contactNos: restaurant.contactNos,
       address: restaurant.address,
-      foods: restaurant.foods
+      foods: restaurant.foods,
+      image: restaurant.image
     });
   } catch (error) {
     res.status(500).json(error);
@@ -580,5 +599,43 @@ router.delete("/food", auth, async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+
+//route to upload image of the restaurant
+/**
+ * @swagger
+ * path:
+ *   /restaurant/image:
+ *     post:
+ *       summary: Route to upload image of the restaurant(File size should not exceed 1 MB) 
+ *       security:
+ *         - bearerAuth: []
+ *       required: true
+ *       tags: [Restaurant]
+ *       requestBody:
+ *         content:
+ *           image/jpg:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       responses:
+ *         "200":
+ *           description: Added Restaurant picture successfully
+ *         "400":
+ *           description: Unable to add restaurant picture 
+ * 
+ */
+router.post('/image', auth, upload.single('image'), async (req, res) => {
+  try {
+    const buffer = await sharp(req.file.buffer).resize( {width:150, height:150} ).png().toBuffer()
+    req.user.image = buffer
+    await req.user.save()
+    res.send("Added Restaurant Picture Successfully")
+  } catch (error) {
+    res.status(400).send(error)
+  }
+},(error, req, res, next) => {
+  res.status(400).send({error: error.message})
+})
 
 module.exports = router;
