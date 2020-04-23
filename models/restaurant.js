@@ -102,6 +102,9 @@ const RestaurantSchema = new Schema(
         ref: "Order"
       }
     ],
+    image: {
+      type: Buffer
+    },
     foods: [
       {
         foodid: {
