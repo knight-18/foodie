@@ -591,9 +591,13 @@ router.delete("/food", auth, async (req, res) => {
       }
     }
     food.restaurants = arr;
-    food.save();
+    if(food.restaurants.length == 0){
+      await food.remove()
+    }else{
+      food.save();
+    }
     const result = await restaurant.save();
-    res.status(200).end();
+    res.status(200).send("Food Deleted");
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
