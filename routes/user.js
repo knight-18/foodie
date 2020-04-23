@@ -141,11 +141,7 @@ router.post("/", async (req, res) => {
  *                  type: string
  *                  format: password
  *              example:
-<<<<<<< HEAD
- *                phone: "+918602313604"
-=======
- *                phone: "8602313604" 
->>>>>>> fb24c191b93d25822a5e2721c26eb89e50a8eb12
+ *                phone: "8602313604"
  *                password: "12345678"
  *
  *      responses:
@@ -478,10 +474,6 @@ router.post("/order", auth, async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-<<<<<<< HEAD
-    console.log(error);
-=======
->>>>>>> fb24c191b93d25822a5e2721c26eb89e50a8eb12
     res.status(500).json(error);
   }
 });
