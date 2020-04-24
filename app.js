@@ -28,6 +28,9 @@ const options = {
     servers: [
       {
         url: `http://localhost:${PORT}/api/`
+      },
+      {
+        url: `https://knight-foodji.herokuapp.com/api/`
       }
     ]
   },
