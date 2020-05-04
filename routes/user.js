@@ -110,6 +110,7 @@ router.post("/", async (req, res) => {
     const token = await user.generateAuthToken();
     res.status(201).send({ user, token });
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
@@ -140,7 +141,7 @@ router.post("/", async (req, res) => {
  *                  type: string
  *                  format: password
  *              example:
- *                phone: "8602313604" 
+ *                phone: "8602313604"
  *                password: "12345678"
  *
  *      responses:
@@ -199,7 +200,7 @@ router.post("/login", async (req, res) => {
 //Logout route for user
 router.post("/logout", auth, async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filter(token => {
+    req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
@@ -312,7 +313,7 @@ router.get("/me", auth, async (req, res) => {
 router.patch("/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "email", "password", "address", "phone"];
-  const isValidOperation = updates.every(update =>
+  const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
 
@@ -321,7 +322,7 @@ router.patch("/me", auth, async (req, res) => {
   }
 
   try {
-    updates.forEach(update => (req.user[update] = req.body[update]));
+    updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     res.status(200).send(req.user);
   } catch (e) {
@@ -410,7 +411,7 @@ router.patch("/me", auth, async (req, res) => {
  *                      total:
  *                        type: number
  *                        description: Total amount of the order to be paid
- *                      method: 
+ *                      method:
  *                        type: string
  *                        description: Mode of payment i.e. "COD", "UPI", "CARD"
  *                  status:
@@ -436,7 +437,7 @@ router.patch("/me", auth, async (req, res) => {
  *                        name:
  *                          type: string
  *                          description: Name of the Food
- *                     
+ *
  *        "500":
  *          description: An error occured
  */
@@ -450,27 +451,27 @@ router.post("/order", auth, async (req, res) => {
     if (!restaurant) {
       return res.status(404).send("Restaurant Not found");
     }
-    const length = foods.length
-    const newFoods = foods.map(obj => {
-      const price = restaurant.foods.find(doc => {
+    const length = foods.length;
+    const newFoods = foods.map((obj) => {
+      const price = restaurant.foods.find((doc) => {
         return doc.foodid == obj.foodid;
       }).price;
       return {
         ...obj,
         price: price,
-        length: length
+        length: length,
       };
     });
     const order = new Order({
-      payment
+      payment,
     });
-    //console.log(newFoods); 
-    order.setTotal(newFoods)
+    //console.log(newFoods);
+    order.setTotal(newFoods);
     await order.setUser(user);
     await order.setRestaurant(restaurant);
     await order.setFoods(newFoods);
     const result = await order.save();
-    
+
     res.status(200).json(result);
   } catch (error) {
     res.status(500).json(error);

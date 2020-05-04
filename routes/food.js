@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const multer = require('multer')
-const sharp = require('sharp')
+const multer = require("multer");
+const sharp = require("sharp");
 
 const Food = require("../models/food");
 const Restaurant = require("../models/restaurant");
@@ -37,7 +37,6 @@ router.get("/test", (req, res) => {
   res.send("[SUCCESS]: Food routes connected!");
 });
 
-
 /**
  * @swagger
  * tags:
@@ -45,21 +44,23 @@ router.get("/test", (req, res) => {
  */
 
 //=======================================
-const getResponse = function(foods) {
-  return foods.map(food => {
-    const restaurantList = food.restaurants.map(restaurant => {
-      const price = restaurant.foods.find(obj => food.id == obj.foodid).price;
+const getResponse = function (foods) {
+  return foods.map((food) => {
+    const restaurantList = food.restaurants.map((restaurant) => {
+      const price = restaurant.foods.find((obj) => food.id == obj.foodid).price;
       return {
         name: restaurant.name,
         _id: restaurant.id,
-        price: price
+        image: restaurant.image,
+        price: price,
       };
     });
 
     return {
       name: food.name,
       _id: food.id,
-      restaurants: restaurantList
+      image: food.image,
+      restaurants: restaurantList,
     };
   });
 };
@@ -108,9 +109,7 @@ const getResponse = function(foods) {
  */
 router.get("/", async (req, res) => {
   try {
-    const foods = await Food.find({})
-      .populate("restaurants")
-      .exec();
+    const foods = await Food.find({}).populate("restaurants").exec();
     if (!foods) {
       res.status(404).send();
     }
@@ -176,14 +175,14 @@ router.get("/", async (req, res) => {
 router.post("/", restAuth, async (req, res) => {
   const food = new Food({
     name: req.body.name,
-    restaurants: [req.user._id]
+    restaurants: [req.user._id],
   });
   try {
     const result = await food.save();
     const restaurant = req.user;
     restaurant.foods.push({
       foodid: result._id,
-      price: req.body.price
+      price: req.body.price,
     });
     await restaurant.save();
     res.status(201).json(result);
@@ -193,26 +192,25 @@ router.post("/", restAuth, async (req, res) => {
 });
 
 //Function to upload picture of food
-const upload = multer( {
-  limits:{
-      fileSize:1000000
+const upload = multer({
+  limits: {
+    fileSize: 1000000,
   },
   fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      cb(new Error("Please upload jpg,jpeg or png file only"));
+    }
 
-      if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-          cb(new Error('Please upload jpg,jpeg or png file only'))
-      }
-
-      cb(undefined, true)
-  }
-} )
+    cb(undefined, true);
+  },
+});
 
 /**
  * @swagger
  * path:
  *   /food/image/{id}:
  *     post:
- *       summary: Route to upload image of the food(File size should not exceed 1 MB) 
+ *       summary: Route to upload image of the food(File size should not exceed 1 MB)
  *       security:
  *         - bearerAuth: []
  *       required: true
@@ -230,25 +228,33 @@ const upload = multer( {
  *         "200":
  *           description: Added Food picture successfully
  *         "400":
- *           description: Unable to add food picture 
- * 
+ *           description: Unable to add food picture
+ *
  */
-router.post('/image/:id', restAuth, upload.single('image'), async (req, res) => {
+router.post(
+  "/image/:id",
+  restAuth,
+  upload.single("image"),
+  async (req, res) => {
     try {
-      const food = await Food.findById(req.params.id)
-      if(!food){
-        throw new Error("Food doesn't exists")
+      const food = await Food.findById(req.params.id);
+      if (!food) {
+        throw new Error("Food doesn't exists");
       }
-      const buffer = await sharp(req.file.buffer).resize( {width:150, height:150} ).png().toBuffer()
-      food.image = buffer
-      await food.save()
-      res.status(200).send("Added Food Picture Successfully")
+      const buffer = await sharp(req.file.buffer)
+        .resize({ width: 150, height: 150 })
+        .png()
+        .toBuffer();
+      food.image = buffer;
+      await food.save();
+      res.status(200).send("Added Food Picture Successfully");
     } catch (error) {
-      res.status(400).send(error)
+      res.status(400).send(error);
     }
-
-},(error, req, res, next) => {
-  res.status(400).send({error: error.message})
-})
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
 
 module.exports = router;

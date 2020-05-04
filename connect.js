@@ -6,9 +6,9 @@ function connectDB() {
     case "dev":
       url = "mongodb://localhost:27017/foodie";
       break;
-    case "prod":
+    case "production":
       /* make url your production connection string for database */
-      url = process.env.MONGODB_URL 
+      url = process.env.MONGODB_URL;
       break;
     default:
       // In dev mode by default
@@ -18,10 +18,9 @@ function connectDB() {
     url,
     {
       useNewUrlParser: true,
-      useFindAndModify: false,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     },
-    err => {
+    (err) => {
       if (err) console.log(err);
       else console.log("Database Connected!");
     }

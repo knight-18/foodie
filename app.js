@@ -11,7 +11,7 @@ const app = express();
 
 const routes = require("./routes/index");
 const connectDB = require("./connect");
-
+// test version 2
 //==========================Swagger set up========================
 const options = {
   swaggerDefinition: {
@@ -22,19 +22,19 @@ const options = {
       description: "Backend for the foodie app",
       contact: {
         name: "Foodie",
-        url: "https://www.github.com/KaviiSuri/foodie"
-      }
+        url: "https://www.github.com/KaviiSuri/foodie",
+      },
     },
     servers: [
       {
-        url: `http://localhost:${PORT}/api/`
+        url: `https://foodie-test-deployment.herokuapp.com/api/`,
       },
       {
-        url: `https://knight-foodji.herokuapp.com/api/`
-      }
-    ]
+        url: `https://localhost:${PORT}/api/`,
+      },
+    ],
   },
-  apis: ["./routes/*.js", "./models/*.js"]
+  apis: ["./routes/*.js", "./models/*.js"],
 };
 
 const specs = swaggerJsdoc(options);
@@ -42,7 +42,7 @@ app.use("/api/docs", swaggerUi.serve);
 app.get(
   "/api/docs",
   swaggerUi.setup(specs, {
-    explorer: true
+    explorer: true,
   })
 );
 
