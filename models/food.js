@@ -24,6 +24,9 @@ const FoodSchema = new Schema({
     required: true,
     unique: true
   },
+  image: {
+    type: Buffer
+  },
   restaurants: [
     {
       type: Schema.Types.ObjectId,

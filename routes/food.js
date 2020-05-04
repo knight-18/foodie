@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const multer = require('multer')
+const sharp = require('sharp')
 
-const Food = require("../models/food.js");
+const Food = require("../models/food");
 const Restaurant = require("../models/restaurant");
 const restAuth = require("../middleware/restauth");
 
@@ -15,6 +17,26 @@ const restAuth = require("../middleware/restauth");
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
 //=========================== Routes==================================
+
+/**
+ * @swagger
+ * path:
+ *  /food/test:
+ *    get:
+ *      summary: check if food router is configured correctly
+ *      tags: [food]
+ *      responses:
+ *        "200":
+ *          description: Test successfull
+ *          content:
+ *            text/html:
+ *              [SUCCESS]: food routes connected!
+ */
+router.get("/test", (req, res) => {
+  res.status(200);
+  res.send("[SUCCESS]: Food routes connected!");
+});
+
 
 /**
  * @swagger
@@ -170,23 +192,63 @@ router.post("/", restAuth, async (req, res) => {
   }
 });
 
+//Function to upload picture of food
+const upload = multer( {
+  limits:{
+      fileSize:1000000
+  },
+  fileFilter(req, file, cb) {
+
+      if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
+          cb(new Error('Please upload jpg,jpeg or png file only'))
+      }
+
+      cb(undefined, true)
+  }
+} )
+
 /**
  * @swagger
  * path:
- *  /food/test:
- *    get:
- *      summary: check if food router is configured correctly
- *      tags: [food]
- *      responses:
- *        "200":
- *          description: Test successfull
- *          content:
- *            text/html:
- *              [SUCCESS]: food routes connected!
+ *   /food/image/{id}:
+ *     post:
+ *       summary: Route to upload image of the food(File size should not exceed 1 MB) 
+ *       security:
+ *         - bearerAuth: []
+ *       required: true
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       tags: [food]
+ *       requestBody:
+ *         content:
+ *           image/png:
+ *             schema:
+ *               type: string
+ *               format: base64
+ *       responses:
+ *         "200":
+ *           description: Added Food picture successfully
+ *         "400":
+ *           description: Unable to add food picture 
+ * 
  */
-router.get("/test", (req, res) => {
-  res.status(200);
-  res.send("[SUCCESS]: Food routes connected!");
-});
+router.post('/image/:id', restAuth, upload.single('image'), async (req, res) => {
+    try {
+      const food = await Food.findById(req.params.id)
+      if(!food){
+        throw new Error("Food doesn't exists")
+      }
+      const buffer = await sharp(req.file.buffer).resize( {width:150, height:150} ).png().toBuffer()
+      food.image = buffer
+      await food.save()
+      res.status(200).send("Added Food Picture Successfully")
+    } catch (error) {
+      res.status(400).send(error)
+    }
+
+},(error, req, res, next) => {
+  res.status(400).send({error: error.message})
+})
 
 module.exports = router;
