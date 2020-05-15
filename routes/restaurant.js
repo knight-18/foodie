@@ -232,7 +232,7 @@ router.get("/", (req, res) => {
  *
  *      responses:
  *        "201":
- *          description: Restaurant Created
+ *          description: DeliveryGuy Created
  *        "500":
  *          description: internal server error occured
  */

@@ -59,6 +59,69 @@ router.get("/", superAdminAuth, async (req, res) => {
 });
 
 //Route to create deliveryGuy. Requires superadmin authentication
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy:
+ *    post:
+ *      summary: create a new deliveryguy
+ *      tags: [DeliveryGuy]
+ *
+ *      requestBody:
+ *        description: needs all the info about the deliveryguy
+ *        required: true
+ *
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              required:
+ *                - super
+ *                - restaurant
+ *              properties:
+ *                super:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   password:
+ *                     type: string
+ *                     format: password
+ *                deliveryGuy:
+ *                  type: object
+ *                  required:
+ *                    - name
+ *                    - phone
+ *                    - username
+ *                    - password
+ *                  properties:
+ *                    name:
+ *                      type: string
+ *                    phone:
+ *                      type: string
+ *                    username:
+ *                      type: string
+ *                    password:
+ *                      type: string
+ *                      description: minimum length of password must be 7
+ *              example:
+ *                super:
+ *                  username: admin
+ *                  password: password
+ *                deliveryGuy:
+ *                  name: deliveryGuy 1
+ *                  phone: 8889998899
+ *                  username: dguy1
+ *                  password: "12345678"
+ *      responses:
+ *        "201":
+ *          description: deliveryGuy Created
+ *        "500":
+ *          description: internal server error occured
+ */
+
+
 router.post("/", superAdminAuth, async (req, res) => {
   const deliveryGuy = new DeliveryGuy(req.body.deliveryGuy);
   try {
@@ -292,4 +355,15 @@ router.delete("/me", auth, async (req, res) => {
     res.status(500).send();
   }
 });
+
+router.post("/regToken",auth,async(req, res)=>{
+  try {
+    req.user.regToken = req.body.regToken
+    await req.user.save()
+    res.status(200).send(req.user)
+  } catch (e) {
+    res.status(500).send(e)
+  }
+})
+
 module.exports = router;
