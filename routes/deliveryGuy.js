@@ -154,15 +154,19 @@ router.post("/", superAdminAuth, async (req, res) => {
  *              required:
  *                - password
  *                - username
+ *                - regToken
  *              properties:
  *                username:
  *                  type: string
  *                password:
  *                  type: string
  *                  format: password
+ *                regToken:
+ *                  type: string
  *              example:
  *                username: dguy1
  *                password: "12345678"
+ *                regToken: "abcd"
  *
  *      responses:
  *        "200":
@@ -190,6 +194,11 @@ router.post("/login", async (req, res) => {
       req.body.username,
       req.body.password
     );
+    if(req.body.regToken)
+    {
+      deliveryGuy.regToken = req.body.regToken
+      await deliveryGuy.save()
+    }
     const token = await deliveryGuy.generateAuthToken();
     res.send({ deliveryGuy, token });
   } catch (e) {
@@ -356,6 +365,7 @@ router.delete("/me", auth, async (req, res) => {
   }
 });
 
+//post request for registration token
 router.post("/regToken",auth,async(req, res)=>{
   try {
     req.user.regToken = req.body.regToken
