@@ -1,33 +1,11 @@
 const express = require("express");
-var admin = require("firebase-admin");
 const User = require("../models/user");
 const Restaurant = require("../models/restaurant");
 const Order = require("../models/order");
 const deliveryGuy = require("../models/deliveryGuy")
 const auth = require("../middleware/userauth");
-// const serviceAccount = require("./firebase-adminsdk.json")
 const router = express.Router();
 
-
-// Initializing firebase-adminsdk
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-//   databaseURL: process.env.MONGODB_URL
-// });
-
-// Notification content
-var payload = {
-  notification: {
-    title: "Account Deposit",
-    body: "A deposit to your savings account has just cleared."
-  }
-};
-
-//Notification options
-var options = {
-  priority: "high",
-  timeToLive: 60 * 60 *24
-};
 
 //==============Seeding===============
 // if (process.env.NODE_ENV != "prod") {
@@ -495,20 +473,6 @@ router.post("/order", auth, async (req, res) => {
     await order.setRestaurant(restaurant);
     await order.setFoods(newFoods);
     const result = await order.save();
-    // const deliveryGuys = await deliveryGuy.find({})
-    // console.log(deliveryGuys)
-    //sending notification to each delivery guy
-    // deliveryGuys.forEach((deliveryguy)=> {
-    //   admin.messaging().sendToDevice(deliveryGuy.regToken, payload, options)
-    //   .then(function(response) {
-    //     console.log("Successfully sent message:", response);
-    //   })
-    //   .catch(function(error) {
-    //     console.log("Error sending message:", error);
-    //   });
-    // })
-  
-
 
     res.status(200).json(result);
   } catch (error) {
