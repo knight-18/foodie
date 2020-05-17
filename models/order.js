@@ -79,6 +79,10 @@ const OrderSchemaOptions = {
 
 const OrderSchema = new Schema(
   {
+    restNotification: {
+      type: Boolean,
+      default: false
+    },
     foods: [
       {
         _id: {
@@ -149,6 +153,9 @@ const OrderSchema = new Schema(
         default: 0
       }
     }
+  },
+  {
+    timestamps: true
   },
   OrderSchemaOptions
 );
