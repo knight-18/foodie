@@ -354,6 +354,9 @@ router.patch("/me", auth, async (req, res) => {
  *                restaurantId:
  *                  type: string
  *                  description: Id of the restaurant that is to be ordered from
+ *                address:
+ *                  type: string
+ *                  description: address where the food is to be delivered(No need to enter if order is to be delivered at default user's address)
  *                foods:
  *                  type: array
  *                  items:
@@ -404,6 +407,9 @@ router.patch("/me", auth, async (req, res) => {
  *                    properties:
  *                      _id:
  *                        type: string
+ *                  address:
+ *                    type: string
+ *                    description: address where the food is to be delivered
  *                  payment:
  *                    type: object
  *                    properties:
@@ -469,9 +475,15 @@ router.post("/order", auth, async (req, res) => {
     });
     //console.log(newFoods);
     order.setTotal(newFoods);
+    if(!req.body.address){
+      order.address = user.address
+    }else{
+      order.address = req.body.address
+    }
     await order.setUser(user);
     await order.setRestaurant(restaurant);
     await order.setFoods(newFoods);
+
     const result = await order.save();
 
     res.status(200).json(result);
