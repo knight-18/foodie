@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Indian Coffee House",
+    "rest_id": "ich-id",
+    "contactNos": ["+917514011417"],
+    "address": "Indian Coffee House, Nera Hotel India, Station Rd, LNUPE Campus, Lashkar, Gwalior, Madhya Pradesh 474002",
+    "password": "ich-test-pass"
+  },
+  {
+    "name": "The Frappe House",
+    "rest_id": "tfh-id",
+    "contactNos": ["+919584260942", "+919589627252"],
+    "address": "Infront of bank of India, City Center, Gwalior",
+    "password": "tfh-test-pass"
+  },
+  {
+    "name": "Crescent Cafe & Lounge",
+    "rest_id": "ccl-id",
+    "contactNos": ["+918290735535"],
+    "address": "New Collectorate Road, Kailash Nagar, Mahalgaon, Gwalior",
+    "password": "ccl-test-pass"
+  },
+  {
+    "name": "Hotel Ambiance",
+    "rest_id": "ha-id",
+    "contactNos": ["+917773007708", "+917703003003"],
+    "address": "Hotel Ambiance,Railway Station Campus, Thatipur, Gwalior",
+    "password": "ha-test-pass"
+  }
+]

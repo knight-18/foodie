@@ -6,10 +6,10 @@ const auth = require("../middleware/userauth");
 const router = express.Router();
 
 //==============Seeding===============
-// if (process.env.NODE_ENV != "prod") {
-//   const user_seed = require("../seeds/user_seed");
-//   user_seed();
-// }
+if (process.env.NODE_ENV != "production") {
+  const user_seed = require("../seeds/user_seed");
+  user_seed();
+}
 
 //=========================== Routes==================================
 

@@ -5,10 +5,10 @@ const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/deliveryguyauth");
 
 //==============Seeding===============
-// if (process.env.NODE_ENV != "prod") {
-//   const deliveryGuy_seed = require("../seeds/deliveryGuy_seed");
-//   deliveryGuy_seed();
-// }
+if (process.env.NODE_ENV != "production") {
+  const deliveryGuy_seed = require("../seeds/deliveryGuy_seed");
+  deliveryGuy_seed();
+}
 
 //===========ROUTES==================================
 
@@ -156,7 +156,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/logout", auth, async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filter(token => {
+    req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
@@ -266,7 +266,7 @@ router.get("/me", auth, async (req, res) => {
 router.patch("/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["phone", "password"]; //Updates allowed for deliveryGuy
-  const isValidOperation = updates.every(update =>
+  const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
 
@@ -275,7 +275,7 @@ router.patch("/me", auth, async (req, res) => {
   }
 
   try {
-    updates.forEach(update => (req.user[update] = req.body[update]));
+    updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     res.status(200).send(req.user);
   } catch (e) {
