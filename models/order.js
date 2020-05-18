@@ -79,6 +79,10 @@ const OrderSchemaOptions = {
 
 const OrderSchema = new Schema(
   {
+    assign:{
+      type: Boolean,
+      default: false
+    },
     restNotification: {
       type: Boolean,
       default: false
@@ -119,11 +123,14 @@ const OrderSchema = new Schema(
         type: String
       }
     },
+    address:{
+      type: String,
+      required: true
+    },
     deliveryGuy: {
       _id: {
         type: Schema.Types.ObjectId,
-        ref: "DeliveryGuy",
-        default: null
+        ref: "DeliveryGuy"
       },
       name: {
         type: String
