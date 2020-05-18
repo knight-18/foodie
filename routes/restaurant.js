@@ -495,7 +495,7 @@ router.patch("/", auth, async (req, res) => {
 // }
 
 
-//Route sor notification
+//Route for notification
 
 /**
  * @swagger
@@ -583,7 +583,6 @@ router.get('/notify', auth, async (req, res)=>{
     var restaurant = req.user
     var result = await restaurant.populate('orders').execPopulate()
     var data = []
-    console.log(result.orders)
     result.orders.forEach(async (order)=>{
       if(!order.restNotification){
         data.push(order)
@@ -594,34 +593,14 @@ router.get('/notify', auth, async (req, res)=>{
             console.log(err)
           }
           else{
-            console.log(res)
           }
         })
       }
     })
     res.status(200).send(data)
   } catch (e) {
-    console.log(e)
     res.status(500).send(e)
   }
-
-  // try {
-  //   // const orders = await Order.find({})
-  //   var rest = req.user
-  //   var result = await rest.populate('orders').execPopulate()
-  //   var data = []
-  //   result.orders.forEach((order)=>{
-  //     if( currentTS()-120 <= orderTS(order.createdAt)){
-  //       data.push(order)
-  //       console.log("pushed")
-  //     }
-  //   })
-  //   // console.log(data)
-  //   res.status(200).send(data)
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(400).send(error)
-  // }
 })
 
 
