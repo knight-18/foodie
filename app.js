@@ -27,7 +27,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://foodie-test-deployment.herokuapp.com/api/`,
+        url: `https://knight-foodji.herokuapp.com/api`,
       },
       {
         url: `https://localhost:${PORT}/api/`,
