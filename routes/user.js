@@ -175,7 +175,7 @@ router.post("/login", async (req, res) => {
     );
     const token = await user.generateAuthToken();
     res.status(200);
-    res.send({ user, token });
+    res.send({ user, token});
   } catch (e) {
     res.status(400).send();
   }
@@ -258,8 +258,10 @@ router.post("/logoutAll", auth, async (req, res) => {
  *         description: Please Authenticate
  */
 router.get("/me", auth, async (req, res) => {
+  const user = req.user
+  const orders = await user.populate('orders').execPopulate()
   res.status(200);
-  res.send(req.user);
+  res.send({user});
 });
 /**
  * @swagger
