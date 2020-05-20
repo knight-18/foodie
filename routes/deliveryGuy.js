@@ -262,8 +262,10 @@ router.post("/assign/:id", auth, async (req, res)=>{
       order.deliveryGuy._id = req.user._id
       order.deliveryGuy.name = req.user.name
       order.deliveryGuy.phone = req.user.phone
+      req.user.orders.push(order._id)
       order.assign = true
       await order.save()
+      await req.user.save()
       res.status(200).send(order)
     }else{
       res.status(400).send("DeliveryGuy already Assigned.")
@@ -433,7 +435,9 @@ router.post("/logoutAll", auth, async (req, res) => {
  */
 
 router.get("/me", auth, async (req, res) => {
-  res.send(req.user);
+  const user = req.user
+  const orders = await user.populate('orders').execPopulate()
+  res.send(user);
 });
 
 //Update route for delivery guy
