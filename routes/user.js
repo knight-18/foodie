@@ -252,8 +252,103 @@ router.post("/logoutAll", auth, async (req, res) => {
  *        "200":
  *          content:
  *            application/json:
- *              user:
+ *              schema:
  *                type: object
+ *                properties:
+ *                  user:
+ *                    type: object
+ *                    properties:
+ *                      orders:
+ *                        type: object
+ *                        properties:
+ *                          restaurant:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: ObjectId of Restaurant
+ *                              name:
+ *                                type: string
+ *                                description: Name of the Restaurant
+ *                              contactNos: 
+ *                                type: array
+ *                                items:
+ *                                  type: string
+ *                                description: array of all the contact no of restaurant
+ *                          user:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: ObjectId of User
+ *                              name:
+ *                                type: string
+ *                                description: Name of the User
+ *                          deliveryGuy:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: Object Id of deliveryGuy
+ *                              name:
+ *                                type: string
+ *                                description: Name of the deliveryGuy
+ *                              phone:
+ *                                type: string
+ *                                description: Phone number of deliveryGuy
+ *                          address:
+ *                            type: string
+ *                            description: address where the food is to be delivered
+ *                          payment:
+ *                            type: object
+ *                            properties:
+ *                              status:
+ *                                type: string
+ *                                description: Payment status of the order i.e. "UNPAID", "PAID"
+ *                              total:
+ *                                type: number
+ *                                description: Total amount of the order to be paid
+ *                              method:
+ *                                type: string
+ *                                description: Mode of payment i.e. "COD", "UPI", "CARD"
+ *                          status:
+ *                            type: string
+ *                            description: Status of the order i.e. "RECIEVED", "LEFT", "DELIVERED", "CANCELED"
+ *                          _id:
+ *                            type: string
+ *                            description: ObjectId of Order
+ *                          foods:
+ *                            type: array
+ *                            items:
+ *                              type: object
+ *                              properties:
+ *                                quantity:
+ *                                  type: number
+ *                                  description: Quantity of the food
+ *                                _id:
+ *                                  type: string
+ *                                  description: ObjectId of Food
+ *                                price:
+ *                                  type: number
+ *                                  description: Price of the food
+ *                                name:
+ *                                  type: string
+ *                                  description: Name of the Food
+ *                      _id:
+ *                        type: string
+ *                        description: objectID of User
+ *                      name:
+ *                        type: string
+ *                        description: name of user
+ *                      email:
+ *                        type: string
+ *                        description: Email of user
+ *                      address:
+ *                        type: string
+ *                        description: Default address of user
+ *                      phone:
+ *                        type: string
+ *                        description: Phone no of user 
  *        "400":
  *         description: Please Authenticate
  */
