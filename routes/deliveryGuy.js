@@ -304,12 +304,9 @@ router.post("/assign/:id", auth, async (req, res)=>{
  *                password:
  *                  type: string
  *                  format: password
- *                regToken:
- *                  type: string
  *              example:
  *                username: dguy1
  *                password: "12345678"
- *                regToken: "abcd"
  *
  *      responses:
  *        "200":
@@ -338,11 +335,6 @@ router.post("/login", async (req, res) => {
       req.body.username,
       req.body.password
     );
-    if(req.body.regToken)
-    {
-      deliveryGuy.regToken = req.body.regToken
-      await deliveryGuy.save()
-    }
     const token = await deliveryGuy.generateAuthToken();
     res.send({ deliveryGuy, token });
   } catch (e) {
