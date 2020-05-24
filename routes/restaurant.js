@@ -533,6 +533,9 @@ router.patch("/", auth, async (req, res) => {
  *                      name:
  *                         type: string
  *                         description: Name of the User
+ *                      phone: 
+ *                        type: string
+ *                        description: Phone number of the user
  *                  deliveryGuy:
  *                    type: object
  *                    properties:
@@ -817,7 +820,7 @@ router.delete("/food", auth, async (req, res) => {
  */
 router.post('/image', auth, upload.single('image'), async (req, res) => {
   try {
-    const buffer = await sharp(req.file.buffer).resize( {width:150, height:150} ).png().toBuffer()
+    const buffer = await sharp(req.file.buffer).resize( {width:870, height:565} ).png().toBuffer()
     req.user.image = buffer
     await req.user.save()
     res.send("Added Restaurant Picture Successfully")
