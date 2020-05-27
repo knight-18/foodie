@@ -831,4 +831,37 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
   res.status(400).send({error: error.message})
 })
 
+
+//Route to update order status
+/**
+ * @swagger
+ * path:
+ *   /restaurant/status/{id}:
+ *     patch:
+ *       summary: Route to update order status to "LEFT" 
+ *       security:
+ *         - bearerAuth: []
+ *       tags: [Restaurant]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       responses:
+ *         "200":
+ *           description: Status Updated to "LEFT"
+ *         "500":
+ *           description: Error 
+ * 
+ */
+router.patch('/status/:id', auth, async(req, res)=>{
+  try {
+    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
+      status: "LEFT"
+    })
+    res.status(200).send(`Status Updated to "LEFT"`)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+
+})
+
 module.exports = router;

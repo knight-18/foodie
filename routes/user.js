@@ -589,4 +589,36 @@ router.post("/order", auth, async (req, res) => {
   }
 });
 
+//Route to update order status
+/**
+ * @swagger
+ * path:
+ *   /user/status/{id}:
+ *     patch:
+ *       summary: Route to update order status to "LEFT" 
+ *       security:
+ *         - bearerAuth: []
+ *       tags: [user]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       responses:
+ *         "200":
+ *           description: Status Updated to "DELIVERED"
+ *         "500":
+ *           description: Error 
+ * 
+ */
+router.patch('/status/:id', auth, async (req, res)=>{
+  try {
+    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
+      status: 'DELIVERED'
+    })
+    res.status(200).send(`Order status Updated to "Deliverd"`)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+
+})
+
 module.exports = router;
