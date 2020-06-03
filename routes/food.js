@@ -100,7 +100,6 @@ const getResponse = function (foods) {
   return foods.map((food) => {
     const restaurantList = food.restaurants.map((restaurant) => {
       const price = restaurant.foods.find((obj) => food.id == obj.foodid).price;
-
       return {
         name: restaurant.name,
         _id: restaurant.id,
