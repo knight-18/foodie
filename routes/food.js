@@ -182,6 +182,7 @@ router.get("/", async (req, res) => {
       };
       return res.json(response);
     }
+    let query = {};
     query.skip = size * (pageNo - 1);
     query.limit = size;
 
