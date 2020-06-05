@@ -173,8 +173,8 @@ const getResponse = function (foods) {
  */
 router.get("/", async (req, res) => {
   try {
-    const pageNo = parseInt(req.query.pageNo);
-    const size = parseInt(req.query.size);
+    const pageNo = parseInt(req.query.pageNo) || 1;
+    const size = parseInt(req.query.size) || 10;
     if (pageNo < 0 || pageNo === 0) {
       response = {
         error: true,
