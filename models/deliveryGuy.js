@@ -41,23 +41,22 @@ const Schema = mongoose.Schema;
  *
  */
 
-
 const DeliveryGuySchema = new Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     phone: {
       type: String,
-      required: true
+      required: true,
     },
     username: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
-      trim: true
+      trim: true,
     },
     password: {
       type: String,
@@ -68,29 +67,29 @@ const DeliveryGuySchema = new Schema(
         if (value.toLowerCase().includes("password")) {
           throw new Error('Password cannot contain "password"');
         }
-      }
+      },
     },
     orders: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Order"
-      }
+        ref: "Order",
+      },
     ],
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
-    ]
+          required: true,
+        },
+      },
+    ],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-DeliveryGuySchema.methods.toJSON = function() {
+DeliveryGuySchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -101,9 +100,11 @@ DeliveryGuySchema.methods.toJSON = function() {
 };
 
 //JWT function to generate auth tokens
-DeliveryGuySchema.methods.generateAuthToken = async function() {
+DeliveryGuySchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || 129600,
+  });
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
@@ -129,7 +130,7 @@ DeliveryGuySchema.statics.findByCredentials = async (username, password) => {
 };
 
 //To hash the password before saving
-DeliveryGuySchema.pre("save", async function(next) {
+DeliveryGuySchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isModified("password")) {

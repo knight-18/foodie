@@ -66,12 +66,12 @@ const RestaurantSchema = new Schema(
     name: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     rest_id: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
@@ -82,56 +82,56 @@ const RestaurantSchema = new Schema(
         if (value.toLowerCase().includes("password")) {
           throw new Error('Password cannot contain "password"');
         }
-      }
+      },
     },
     // Array of of phone no.s as a restaurant may have more than one phone no.
     contactNos: [
       {
         type: String,
-        allowBlank: false
-      }
+        allowBlank: false,
+      },
     ],
 
     address: {
       type: String,
-      required: true
+      required: true,
     },
     orders: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Order"
-      }
+        ref: "Order",
+      },
     ],
     image: {
-      type: Buffer
+      type: Buffer,
     },
     foods: [
       {
         foodid: {
           type: Schema.Types.ObjectId,
-          ref: "Food"
+          ref: "Food",
         },
         price: {
           type: Number,
-          default: 0
-        }
-      }
+          default: 0,
+        },
+      },
     ],
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
-    ]
+          required: true,
+        },
+      },
+    ],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-RestaurantSchema.methods.toJSON = function() {
+RestaurantSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -142,9 +142,11 @@ RestaurantSchema.methods.toJSON = function() {
 };
 
 //JWT function to generate auth tokens
-RestaurantSchema.methods.generateAuthToken = async function() {
+RestaurantSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || 129600,
+  });
   user.tokens = user.tokens.concat({ token });
   await user.save();
 
@@ -169,7 +171,7 @@ RestaurantSchema.statics.findByCredentials = async (rest_id, password) => {
 };
 
 //To hash the password before saving
-RestaurantSchema.pre("save", async function(next) {
+RestaurantSchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isModified("password")) {

@@ -24,7 +24,7 @@ const Schema = mongoose.Schema;
  *            type: string
  *          phone:
  *            type: string
- *            description: 10 digit phone no. 
+ *            description: 10 digit phone no.
  *          email:
  *            type: string
  *          password:
@@ -48,12 +48,12 @@ const userSchema = new Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     phone: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     email: {
       type: String,
@@ -65,7 +65,7 @@ const userSchema = new Schema(
         if (!validator.isEmail(value)) {
           throw new Error("Email is invalid");
         }
-      }
+      },
     },
     password: {
       type: String,
@@ -76,33 +76,33 @@ const userSchema = new Schema(
         if (value.toLowerCase().includes("password")) {
           throw new Error('Password cannot contain "password"');
         }
-      }
+      },
     },
     address: {
       type: String,
-      required: true
+      required: true,
     },
     orders: [
       {
         type: Schema.Types.ObjectId,
-        ref: "Order"
-      }
+        ref: "Order",
+      },
     ],
     tokens: [
       {
         token: {
           type: String,
-          required: true
-        }
-      }
-    ]
+          required: true,
+        },
+      },
+    ],
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-userSchema.methods.toJSON = function() {
+userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -113,9 +113,11 @@ userSchema.methods.toJSON = function() {
 };
 
 //JWT function to generate auth tokens
-userSchema.methods.generateAuthToken = async function() {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || 129600,
+  });
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
@@ -141,7 +143,7 @@ userSchema.statics.findByCredentials = async (phone, password) => {
 };
 
 //To hash the password before saving
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   const user = this;
 
   if (user.isModified("password")) {
