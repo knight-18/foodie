@@ -175,7 +175,7 @@ router.post("/login", async (req, res) => {
     );
     const token = await user.generateAuthToken();
     res.status(200);
-    res.send({ user, token });
+    res.send({ user, token});
   } catch (e) {
     res.status(400).send();
   }
@@ -252,14 +252,111 @@ router.post("/logoutAll", auth, async (req, res) => {
  *        "200":
  *          content:
  *            application/json:
- *              user:
+ *              schema:
  *                type: object
+ *                properties:
+ *                  user:
+ *                    type: object
+ *                    properties:
+ *                      orders:
+ *                        type: object
+ *                        properties:
+ *                          restaurant:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: ObjectId of Restaurant
+ *                              name:
+ *                                type: string
+ *                                description: Name of the Restaurant
+ *                              contactNos: 
+ *                                type: array
+ *                                items:
+ *                                  type: string
+ *                                description: array of all the contact no of restaurant
+ *                          user:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: ObjectId of User
+ *                              name:
+ *                                type: string
+ *                                description: Name of the User
+ *                          deliveryGuy:
+ *                            type: object
+ *                            properties:
+ *                              _id:
+ *                                type: string
+ *                                description: Object Id of deliveryGuy
+ *                              name:
+ *                                type: string
+ *                                description: Name of the deliveryGuy
+ *                              phone:
+ *                                type: string
+ *                                description: Phone number of deliveryGuy
+ *                          address:
+ *                            type: string
+ *                            description: address where the food is to be delivered
+ *                          payment:
+ *                            type: object
+ *                            properties:
+ *                              status:
+ *                                type: string
+ *                                description: Payment status of the order i.e. "UNPAID", "PAID"
+ *                              total:
+ *                                type: number
+ *                                description: Total amount of the order to be paid
+ *                              method:
+ *                                type: string
+ *                                description: Mode of payment i.e. "COD", "UPI", "CARD"
+ *                          status:
+ *                            type: string
+ *                            description: Status of the order i.e. "RECIEVED", "LEFT", "DELIVERED", "CANCELED"
+ *                          _id:
+ *                            type: string
+ *                            description: ObjectId of Order
+ *                          foods:
+ *                            type: array
+ *                            items:
+ *                              type: object
+ *                              properties:
+ *                                quantity:
+ *                                  type: number
+ *                                  description: Quantity of the food
+ *                                _id:
+ *                                  type: string
+ *                                  description: ObjectId of Food
+ *                                price:
+ *                                  type: number
+ *                                  description: Price of the food
+ *                                name:
+ *                                  type: string
+ *                                  description: Name of the Food
+ *                      _id:
+ *                        type: string
+ *                        description: objectID of User
+ *                      name:
+ *                        type: string
+ *                        description: name of user
+ *                      email:
+ *                        type: string
+ *                        description: Email of user
+ *                      address:
+ *                        type: string
+ *                        description: Default address of user
+ *                      phone:
+ *                        type: string
+ *                        description: Phone no of user 
  *        "400":
  *         description: Please Authenticate
  */
 router.get("/me", auth, async (req, res) => {
+  const user = req.user
+  const orders = await user.populate('orders').execPopulate()
   res.status(200);
-  res.send(req.user);
+  res.send({user});
 });
 /**
  * @swagger
@@ -354,6 +451,9 @@ router.patch("/me", auth, async (req, res) => {
  *                restaurantId:
  *                  type: string
  *                  description: Id of the restaurant that is to be ordered from
+ *                address:
+ *                  type: string
+ *                  description: address where the food is to be delivered(No need to enter if order is to be delivered at default user's address)
  *                foods:
  *                  type: array
  *                  items:
@@ -404,6 +504,9 @@ router.patch("/me", auth, async (req, res) => {
  *                    properties:
  *                      _id:
  *                        type: string
+ *                  address:
+ *                    type: string
+ *                    description: address where the food is to be delivered
  *                  payment:
  *                    type: object
  *                    properties:
@@ -469,9 +572,15 @@ router.post("/order", auth, async (req, res) => {
     });
     //console.log(newFoods);
     order.setTotal(newFoods);
+    if(!req.body.address){
+      order.address = user.address
+    }else{
+      order.address = req.body.address
+    }
     await order.setUser(user);
     await order.setRestaurant(restaurant);
     await order.setFoods(newFoods);
+
     const result = await order.save();
 
     res.status(200).json(result);
@@ -479,5 +588,37 @@ router.post("/order", auth, async (req, res) => {
     res.status(500).json(error);
   }
 });
+
+//Route to update order status
+/**
+ * @swagger
+ * path:
+ *   /user/status/{id}:
+ *     patch:
+ *       summary: Route to update order status to "LEFT" 
+ *       security:
+ *         - bearerAuth: []
+ *       tags: [user]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       responses:
+ *         "200":
+ *           description: Status Updated to "DELIVERED"
+ *         "500":
+ *           description: Error 
+ * 
+ */
+router.patch('/status/:id', auth, async (req, res)=>{
+  try {
+    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
+      status: 'DELIVERED'
+    })
+    res.status(200).send(`Order status Updated to "Deliverd"`)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+
+})
 
 module.exports = router;

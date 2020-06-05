@@ -52,10 +52,6 @@ const DeliveryGuySchema = new Schema(
       type: String,
       required: true
     },
-    regToken:{
-      type: String,  
-    }
-    ,
     username: {
       type: String,
       required: true,

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+var Order = require("../models/order")
 var DeliveryGuy = require("../models/deliveryGuy");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/deliveryguyauth");
@@ -133,6 +134,149 @@ router.post("/", superAdminAuth, async (req, res) => {
   }
 });
 
+//Route to get details o forder for which delivery guy is not assigned
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/notify:
+ *    get:
+ *      summary: Route to get details of orders for which the deliveryguy is not assigned yet
+ *      tags: [DeliveryGuy]
+ *      security:
+ *        - bearerAuth: []
+ *
+ *      responses:
+ *        "200":
+ *          description: Details Successfully fetched
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  restaurant:
+ *                    type: object
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                        description: ObjectId of Restaurant
+ *                      name:
+ *                        type: string
+ *                        description: Name of the Restaurant
+ *                  user:
+ *                    type: object
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                        description: ObjectId of User
+ *                      name:
+ *                         type: string
+ *                         description: Name of the User
+ *                  deliveryGuy:
+ *                    type: object
+ *                    properties:
+ *                      _id:
+ *                        type: string
+ *                  address:
+ *                    type: string
+ *                  payment:
+ *                    type: object
+ *                    properties:
+ *                      status:
+ *                        type: string
+ *                        description: Payment status of the order i.e. "UNPAID", "PAID"
+ *                      total:
+ *                        type: number
+ *                        description: Total amount of the order to be paid
+ *                      method:
+ *                        type: string
+ *                        description: Mode of payment i.e. "COD", "UPI", "CARD"
+ *                  status:
+ *                    type: string
+ *                    decription: Status of the order i.e. "RECIEVED", "LEFT", "DELIVERED", "CANCELED"
+ *                  _id:
+ *                    type: string
+ *                    description: ObjectId of Order
+ *                  foods:
+ *                    type: array
+ *                    items:
+ *                      type: object
+ *                      properties:
+ *                        quantity:
+ *                          type: number
+ *                          description:
+ *                        _id:
+ *                          type: string
+ *                          description: ObjectId of Food
+ *                        price:
+ *                          type: number
+ *                          description: Price of the food
+ *                        name:
+ *                          type: string
+ *                          description: Name of the Food
+ *
+ *        "500":
+ *          description: An error occured
+ */
+
+router.get('/notify', auth, async (req, res)=>{
+  try {
+    var delGuy = req.user
+    var data = await Order.find({deliveryGuy : null})
+    res.status(200).send(data)
+  } catch (e) {
+    res.status(500).send(e)
+  }
+})
+
+//Route for assign deliveryGuy
+
+/**
+ * @swagger
+ * path:
+ *  /deliveryguy/assign/{id}:
+ *    post:
+ *      summary: Route to assign deliveryguy
+ *      tags: [DeliveryGuy]
+ *      security:
+ *        - bearerAuth: []
+ *      parameters:
+ *        - in: path
+ *          name: id
+ *      description: order id is to be mentioned in params for which deliveryguy is to be assigned
+ *    responses:
+ *      "200":
+ *        description: Whole order object is returned as response
+ *      "400":
+ *        description: An error occured
+ * 
+ */
+
+router.post("/assign/:id", auth, async (req, res)=>{
+  try {
+    const order = await Order.findById(req.params.id)
+    if(!order){
+      res.status(400).send("Incorrect orderID")
+    }
+    if(!order.assign){
+      order.deliveryGuy._id = req.user._id
+      order.deliveryGuy.name = req.user.name
+      order.deliveryGuy.phone = req.user.phone
+      req.user.orders.push(order._id)
+      order.assign = true
+      await order.save()
+      await req.user.save()
+      res.status(200).send(order)
+    }else{
+      res.status(400).send("DeliveryGuy already Assigned.")
+    }
+  } catch (error) {
+    res.status(400).send(error)
+  }
+})
+
+
+
 //Login Route for deliveryGuy
 
 /**
@@ -154,19 +298,15 @@ router.post("/", superAdminAuth, async (req, res) => {
  *              required:
  *                - password
  *                - username
- *                - regToken
  *              properties:
  *                username:
  *                  type: string
  *                password:
  *                  type: string
  *                  format: password
- *                regToken:
- *                  type: string
  *              example:
  *                username: dguy1
  *                password: "12345678"
- *                regToken: "abcd"
  *
  *      responses:
  *        "200":
@@ -188,17 +328,13 @@ router.post("/", superAdminAuth, async (req, res) => {
  *          description: An error occured
  */
 
+
 router.post("/login", async (req, res) => {
   try {
     const deliveryGuy = await DeliveryGuy.findByCredentials(
       req.body.username,
       req.body.password
     );
-    if(req.body.regToken)
-    {
-      deliveryGuy.regToken = req.body.regToken
-      await deliveryGuy.save()
-    }
     const token = await deliveryGuy.generateAuthToken();
     res.send({ deliveryGuy, token });
   } catch (e) {
@@ -271,7 +407,9 @@ router.post("/logoutAll", auth, async (req, res) => {
 
 //Route to read deliveryGuy profile
 
-/**
+
+
+ /**
  * @swagger
  * path:
  *  /deliveryguy/me:
@@ -284,14 +422,104 @@ router.post("/logoutAll", auth, async (req, res) => {
  *        "200":
  *          content:
  *            application/json:
- *              user:
+ *              schema:
  *                type: object
+ *                properties:
+ *                  orders:
+ *                    type: object
+ *                    properties:
+ *                      restaurant:
+ *                        type: object
+ *                        properties:
+ *                          _id:
+ *                            type: string
+ *                            description: ObjectId of Restaurant
+ *                          name:
+ *                            type: string
+ *                            description: Name of the Restaurant
+ *                          contactNos: 
+ *                            type: array
+ *                            items:
+ *                              type: string
+ *                            description: array of all the contact nos of restaurant
+ *                      user:
+ *                        type: object
+ *                        properties:
+ *                          _id:
+ *                            type: string
+ *                            description: ObjectId of User
+ *                          name:
+ *                            type: string
+ *                            description: Name of the User
+ *                      deliveryGuy:
+ *                        type: object
+ *                        properties:
+ *                          _id:
+ *                            type: string
+ *                            description: Object Id of deliveryGuy
+ *                          name:
+ *                            type: string
+ *                            description: Name of the deliveryGuy
+ *                          phone:
+ *                            type: string
+ *                            description: Phone number of deliveryGuy
+ *                      address:
+ *                        type: string
+ *                        description: address where the food is to be delivered
+ *                      payment:
+ *                        type: object
+ *                        properties:
+ *                          status:
+ *                            type: string
+ *                            description: Payment status of the order i.e. "UNPAID", "PAID"
+ *                          total:
+ *                            type: number
+ *                            description: Total amount of the order to be paid
+ *                          method:
+ *                            type: string
+ *                            description: Mode of payment i.e. "COD", "UPI", "CARD"
+ *                      status:
+ *                        type: string
+ *                        description: Status of the order i.e. "RECIEVED", "LEFT", "DELIVERED", "CANCELED"
+ *                      _id:
+ *                        type: string
+ *                        description: ObjectId of Order
+ *                      foods:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            quantity:
+ *                              type: number
+ *                              description: Quantity of the food
+ *                            _id:
+ *                              type: string
+ *                              description: ObjectId of Food
+ *                            price:
+ *                              type: number
+ *                              description: Price of the food
+ *                            name:
+ *                              type: string
+ *                              description: Name of the Food
+ *                  _id:
+ *                    type: string
+ *                    description: objectID of DelivryGuy
+ *                  username:
+ *                    type: string
+ *                    description: Username of deliveryGuy
+ *                  name:
+ *                    type: string
+ *                    description: Name of deliveryGuy
+ *                  phone:
+ *                    type: string
+ *                    description: Phone no of deliveryGuy 
  *        "400":
  *         description: Please Authenticate
  */
-
 router.get("/me", auth, async (req, res) => {
-  res.send(req.user);
+  const user = req.user
+  const orders = await user.populate('orders').execPopulate()
+  res.send(user);
 });
 
 //Update route for delivery guy

@@ -39,6 +39,12 @@ const OrderSchemaOptions = {
  *                description: objectID of restaurant
  *              name:
  *                type: string
+ *                description: name of the restaurant
+ *              contactNos:
+ *                type: array
+ *                items:
+ *                  type: string
+ *                description: array of all the contact no of restaurant
  *          user:
  *            type: object
  *            properties:
@@ -47,6 +53,10 @@ const OrderSchemaOptions = {
  *                description: objectID of User
  *              name: 
  *                type: string
+ *                description: Name of user
+ *              phone:
+ *                type: string
+ *                description: Phone no of user
  *          deliveryGuy:
  *            type: object
  *            properties: 
@@ -79,6 +89,10 @@ const OrderSchemaOptions = {
 
 const OrderSchema = new Schema(
   {
+    assign:{
+      type: Boolean,
+      default: false
+    },
     restNotification: {
       type: Boolean,
       default: false
@@ -108,7 +122,13 @@ const OrderSchema = new Schema(
       },
       name: {
         type: String
-      }
+      },
+      contactNos: [
+        {
+          type: String,
+          allowBlank: false
+        }
+      ]
     },
     user: {
       _id: {
@@ -117,13 +137,19 @@ const OrderSchema = new Schema(
       },
       name: {
         type: String
+      },
+      phone: {
+        type: String
       }
+    },
+    address:{
+      type: String,
+      required: true
     },
     deliveryGuy: {
       _id: {
         type: Schema.Types.ObjectId,
-        ref: "DeliveryGuy",
-        default: null
+        ref: "DeliveryGuy"
       },
       name: {
         type: String
@@ -254,7 +280,8 @@ OrderSchema.methods.setUser = async function(user) {
     // Add users name and id to order.user
     order.user = {
       _id: user._id,
-      name: user.name
+      name: user.name,
+      phone: user.phone
     };
     // Save them both
 
@@ -274,7 +301,8 @@ OrderSchema.methods.setRestaurant = async function(restaurant) {
     // Add users name and id to order.user
     order.restaurant = {
       _id: restaurant._id,
-      name: restaurant.name
+      name: restaurant.name,
+      contactNos: restaurant.contactNos
     };
     // Save them both
     await order.save();

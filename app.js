@@ -3,14 +3,19 @@ const bodyParser = require("body-parser");
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+const cors = require("cors")
 require("dotenv").config();
 
 const PORT = process.env.PORT;
 
 const app = express();
+app.use(cors())
 
 const routes = require("./routes/index");
 const connectDB = require("./connect");
+
+
+
 // test version 2
 //==========================Swagger set up========================
 const options = {

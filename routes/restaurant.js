@@ -495,7 +495,7 @@ router.patch("/", auth, async (req, res) => {
 // }
 
 
-//Route sor notification
+//Route for notification
 
 /**
  * @swagger
@@ -533,6 +533,9 @@ router.patch("/", auth, async (req, res) => {
  *                      name:
  *                         type: string
  *                         description: Name of the User
+ *                      phone: 
+ *                        type: string
+ *                        description: Phone number of the user
  *                  deliveryGuy:
  *                    type: object
  *                    properties:
@@ -583,7 +586,6 @@ router.get('/notify', auth, async (req, res)=>{
     var restaurant = req.user
     var result = await restaurant.populate('orders').execPopulate()
     var data = []
-    console.log(result.orders)
     result.orders.forEach(async (order)=>{
       if(!order.restNotification){
         data.push(order)
@@ -594,34 +596,14 @@ router.get('/notify', auth, async (req, res)=>{
             console.log(err)
           }
           else{
-            console.log(res)
           }
         })
       }
     })
     res.status(200).send(data)
   } catch (e) {
-    console.log(e)
     res.status(500).send(e)
   }
-
-  // try {
-  //   // const orders = await Order.find({})
-  //   var rest = req.user
-  //   var result = await rest.populate('orders').execPopulate()
-  //   var data = []
-  //   result.orders.forEach((order)=>{
-  //     if( currentTS()-120 <= orderTS(order.createdAt)){
-  //       data.push(order)
-  //       console.log("pushed")
-  //     }
-  //   })
-  //   // console.log(data)
-  //   res.status(200).send(data)
-  // } catch (error) {
-  //   console.log(error)
-  //   res.status(400).send(error)
-  // }
 })
 
 
@@ -835,6 +817,7 @@ router.delete("/food", auth, async (req, res) => {
  *           description: Unable to add restaurant picture
  *
  */
+<<<<<<< HEAD
 router.post(
   "/image",
   auth,
@@ -854,7 +837,50 @@ router.post(
   },
   (error, req, res, next) => {
     res.status(400).send({ error: error.message });
+=======
+router.post('/image', auth, upload.single('image'), async (req, res) => {
+  try {
+    const buffer = await sharp(req.file.buffer).resize( {width:870, height:565} ).png().toBuffer()
+    req.user.image = buffer
+    await req.user.save()
+    res.send("Added Restaurant Picture Successfully")
+  } catch (error) {
+    res.status(400).send(error)
+>>>>>>> c52156fa3af72fcc8bb92ad60a5c23c6adf5605b
   }
 );
+
+
+//Route to update order status
+/**
+ * @swagger
+ * path:
+ *   /restaurant/status/{id}:
+ *     patch:
+ *       summary: Route to update order status to "LEFT" 
+ *       security:
+ *         - bearerAuth: []
+ *       tags: [Restaurant]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       responses:
+ *         "200":
+ *           description: Status Updated to "LEFT"
+ *         "500":
+ *           description: Error 
+ * 
+ */
+router.patch('/status/:id', auth, async(req, res)=>{
+  try {
+    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
+      status: "LEFT"
+    })
+    res.status(200).send(`Status Updated to "LEFT"`)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+
+})
 
 module.exports = router;

@@ -101,7 +101,6 @@ const getResponse = function (foods) {
   return foods.map((food) => {
     const restaurantList = food.restaurants.map((restaurant) => {
       const price = restaurant.foods.find((obj) => food.id == obj.foodid).price;
-
       return {
         name: restaurant.name,
         _id: restaurant.id,
@@ -297,7 +296,7 @@ router.post(
         throw new Error("Food doesn't exists");
       }
       const buffer = await sharp(req.file.buffer)
-        .resize({ width: 150, height: 150 })
+        .resize({ width: 870, height: 565 })
         .png()
         .toBuffer();
       food.image = buffer;
