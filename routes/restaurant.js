@@ -4,15 +4,15 @@ const multer = require("multer");
 const sharp = require("sharp");
 const Restaurant = require("../models/restaurant");
 const Food = require("../models/food");
-const Order = require("../models/order")
+const Order = require("../models/order");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
 
 //==============Seeding===============
-if (process.env.NODE_ENV != "production") {
-  const restaurant_seed = require("../seeds/restaurant_seed");
-  restaurant_seed();
-}
+// if (process.env.NODE_ENV != "production") {
+//   const restaurant_seed = require("../seeds/restaurant_seed");
+//   restaurant_seed();
+// }
 
 //Function to upload picture of restaurant
 const upload = multer({
@@ -132,10 +132,21 @@ router.get("/test", (req, res) => {
 /**
  * @swagger
  * path:
- *  /restaurant:
+ *  /restaurant?pageNo=1&size=10:
  *    get:
  *      summary: get a list of all restaurants
  *      tags: [Restaurant]
+ *      parameters:
+ *        - in: query
+ *          name: pageNo
+ *          schema:
+ *            type: integer
+ *          description: the page number
+ *        - in: query
+ *          name: size
+ *          schema:
+ *            type: integer
+ *          description: The number of items to return
  *      responses:
  *        "200":
  *          description: Gives back all the restaurants
@@ -147,7 +158,19 @@ router.get("/test", (req, res) => {
  *
  */
 router.get("/", (req, res) => {
-  Restaurant.find({}, (err, restaurants) => {
+  const pageNo = parseInt(req.query.pageNo);
+  const size = parseInt(req.query.size);
+  if (pageNo < 0 || pageNo === 0) {
+    response = {
+      error: true,
+      message: "invalid page number, should start with 1",
+    };
+    return res.json(response);
+  }
+  query.skip = size * (pageNo - 1);
+  query.limit = size;
+
+  Restaurant.find({}, {}, query, (err, restaurants) => {
     if (err) {
       console.log(err);
       res.status(500).json(err);
@@ -476,7 +499,6 @@ router.patch("/", auth, async (req, res) => {
   }
 });
 
-
 //Timestamps
 
 // const currentTS = ()=>{
@@ -484,7 +506,7 @@ router.patch("/", auth, async (req, res) => {
 //   // timestamp in seconds
 //   console.log( "currentTS- "+ Math.floor(ts/1000));
 
-//   return Math.floor(ts/1000) 
+//   return Math.floor(ts/1000)
 // }
 
 // const orderTS = (str)=>{
@@ -493,7 +515,6 @@ router.patch("/", auth, async (req, res) => {
 //   console.log("OrderTS- " +Math.floor(orderts/1000));
 //   return Math.floor(orderts/1000)
 // }
-
 
 //Route for notification
 
@@ -533,7 +554,7 @@ router.patch("/", auth, async (req, res) => {
  *                      name:
  *                         type: string
  *                         description: Name of the User
- *                      phone: 
+ *                      phone:
  *                        type: string
  *                        description: Phone number of the user
  *                  deliveryGuy:
@@ -581,34 +602,33 @@ router.patch("/", auth, async (req, res) => {
  *          description: An error occured
  */
 
-router.get('/notify', auth, async (req, res)=>{
+router.get("/notify", auth, async (req, res) => {
   try {
-    var restaurant = req.user
-    var result = await restaurant.populate('orders').execPopulate()
-    var data = []
-    result.orders.forEach(async (order)=>{
-      if(!order.restNotification){
-        data.push(order)
-        await Order.findByIdAndUpdate({ _id : order._id }, {
-          restNotification : true
-        }, (err, res)=>{
-          if(err){
-            console.log(err)
+    var restaurant = req.user;
+    var result = await restaurant.populate("orders").execPopulate();
+    var data = [];
+    result.orders.forEach(async (order) => {
+      if (!order.restNotification) {
+        data.push(order);
+        await Order.findByIdAndUpdate(
+          { _id: order._id },
+          {
+            restNotification: true,
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            } else {
+            }
           }
-          else{
-          }
-        })
+        );
       }
-    })
-    res.status(200).send(data)
+    });
+    res.status(200).send(data);
   } catch (e) {
-    res.status(500).send(e)
+    res.status(500).send(e);
   }
-})
-
-
-
-
+});
 
 // get the details of the restaurant for details page
 
@@ -817,39 +837,19 @@ router.delete("/food", auth, async (req, res) => {
  *           description: Unable to add restaurant picture
  *
  */
-<<<<<<< HEAD
-router.post(
-  "/image",
-  auth,
-  upload.single("image"),
-  async (req, res) => {
-    try {
-      const buffer = await sharp(req.file.buffer)
-        .resize({ width: 150, height: 150 })
-        .png()
-        .toBuffer();
-      req.user.image = buffer;
-      await req.user.save();
-      res.send("Added Restaurant Picture Successfully");
-    } catch (error) {
-      res.status(400).send(error);
-    }
-  },
-  (error, req, res, next) => {
-    res.status(400).send({ error: error.message });
-=======
-router.post('/image', auth, upload.single('image'), async (req, res) => {
+router.post("/image", auth, upload.single("image"), async (req, res) => {
   try {
-    const buffer = await sharp(req.file.buffer).resize( {width:870, height:565} ).png().toBuffer()
-    req.user.image = buffer
-    await req.user.save()
-    res.send("Added Restaurant Picture Successfully")
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 870, height: 565 })
+      .png()
+      .toBuffer();
+    req.user.image = buffer;
+    await req.user.save();
+    res.send("Added Restaurant Picture Successfully");
   } catch (error) {
-    res.status(400).send(error)
->>>>>>> c52156fa3af72fcc8bb92ad60a5c23c6adf5605b
+    res.status(400).send(error);
   }
-);
-
+});
 
 //Route to update order status
 /**
@@ -857,7 +857,7 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
  * path:
  *   /restaurant/status/{id}:
  *     patch:
- *       summary: Route to update order status to "LEFT" 
+ *       summary: Route to update order status to "LEFT"
  *       security:
  *         - bearerAuth: []
  *       tags: [Restaurant]
@@ -868,19 +868,21 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
  *         "200":
  *           description: Status Updated to "LEFT"
  *         "500":
- *           description: Error 
- * 
+ *           description: Error
+ *
  */
-router.patch('/status/:id', auth, async(req, res)=>{
+router.patch("/status/:id", auth, async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
-      status: "LEFT"
-    })
-    res.status(200).send(`Status Updated to "LEFT"`)
+    const order = await Order.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        status: "LEFT",
+      }
+    );
+    res.status(200).send(`Status Updated to "LEFT"`);
   } catch (error) {
-    res.status(500).send(error)
+    res.status(500).send(error);
   }
-
-})
+});
 
 module.exports = router;

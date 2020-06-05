@@ -7,12 +7,12 @@ const Food = require("../models/food");
 const Restaurant = require("../models/restaurant");
 const restAuth = require("../middleware/restauth");
 
-if (process.env.NODE_ENV != "production") {
-  const food_seed = require("../seeds/food_seed");
-  setTimeout(() => {
-    food_seed();
-  }, 5000);
-}
+// if (process.env.NODE_ENV != "production") {
+//   const food_seed = require("../seeds/food_seed");
+//   setTimeout(() => {
+//     food_seed();
+//   }, 5000);
+// }
 
 // const superAdminAuth = require("../middleware/super_admin_middleware");
 // router.use(express.json());
@@ -123,10 +123,21 @@ const getResponse = function (foods) {
 /**
  * @swagger
  * path:
- *  /food:
+ *  /food?pageNo=1&size=10:
  *    get:
  *      summary: get list of all available foods
  *      tags: [food]
+ *      parameters:
+ *        - in: query
+ *          name: pageNo
+ *          schema:
+ *            type: integer
+ *          description: the page number
+ *        - in: query
+ *          name: size
+ *          schema:
+ *            type: integer
+ *          description: The number of items to return
  *
  *      responses:
  *        "200":
@@ -162,7 +173,23 @@ const getResponse = function (foods) {
  */
 router.get("/", async (req, res) => {
   try {
-    const foods = await Food.find({}).populate("restaurants").exec();
+    const pageNo = parseInt(req.query.pageNo);
+    const size = parseInt(req.query.size);
+    if (pageNo < 0 || pageNo === 0) {
+      response = {
+        error: true,
+        message: "invalid page number, should start with 1",
+      };
+      return res.json(response);
+    }
+    query.skip = size * (pageNo - 1);
+    query.limit = size;
+
+    const foods = await Food.find({})
+      .populate("restaurants")
+      .limit(query.limit)
+      .skip(query.skip)
+      .exec();
     if (!foods) {
       res.status(404).send();
     }

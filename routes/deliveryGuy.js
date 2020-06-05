@@ -1,15 +1,15 @@
 const express = require("express");
 const router = express.Router();
-var Order = require("../models/order")
+var Order = require("../models/order");
 var DeliveryGuy = require("../models/deliveryGuy");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/deliveryguyauth");
 
 //==============Seeding===============
-if (process.env.NODE_ENV != "production") {
-  const deliveryGuy_seed = require("../seeds/deliveryGuy_seed");
-  deliveryGuy_seed();
-}
+// if (process.env.NODE_ENV != "production") {
+//   const deliveryGuy_seed = require("../seeds/deliveryGuy_seed");
+//   deliveryGuy_seed();
+// }
 
 //===========ROUTES==================================
 
@@ -122,7 +122,6 @@ router.get("/", superAdminAuth, async (req, res) => {
  *          description: internal server error occured
  */
 
-
 router.post("/", superAdminAuth, async (req, res) => {
   const deliveryGuy = new DeliveryGuy(req.body.deliveryGuy);
   try {
@@ -219,15 +218,15 @@ router.post("/", superAdminAuth, async (req, res) => {
  *          description: An error occured
  */
 
-router.get('/notify', auth, async (req, res)=>{
+router.get("/notify", auth, async (req, res) => {
   try {
-    var delGuy = req.user
-    var data = await Order.find({deliveryGuy : null})
-    res.status(200).send(data)
+    var delGuy = req.user;
+    var data = await Order.find({ deliveryGuy: null });
+    res.status(200).send(data);
   } catch (e) {
-    res.status(500).send(e)
+    res.status(500).send(e);
   }
-})
+});
 
 //Route for assign deliveryGuy
 
@@ -249,33 +248,31 @@ router.get('/notify', auth, async (req, res)=>{
  *        description: Whole order object is returned as response
  *      "400":
  *        description: An error occured
- * 
+ *
  */
 
-router.post("/assign/:id", auth, async (req, res)=>{
+router.post("/assign/:id", auth, async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id)
-    if(!order){
-      res.status(400).send("Incorrect orderID")
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      res.status(400).send("Incorrect orderID");
     }
-    if(!order.assign){
-      order.deliveryGuy._id = req.user._id
-      order.deliveryGuy.name = req.user.name
-      order.deliveryGuy.phone = req.user.phone
-      req.user.orders.push(order._id)
-      order.assign = true
-      await order.save()
-      await req.user.save()
-      res.status(200).send(order)
-    }else{
-      res.status(400).send("DeliveryGuy already Assigned.")
+    if (!order.assign) {
+      order.deliveryGuy._id = req.user._id;
+      order.deliveryGuy.name = req.user.name;
+      order.deliveryGuy.phone = req.user.phone;
+      req.user.orders.push(order._id);
+      order.assign = true;
+      await order.save();
+      await req.user.save();
+      res.status(200).send(order);
+    } else {
+      res.status(400).send("DeliveryGuy already Assigned.");
     }
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).send(error);
   }
-})
-
-
+});
 
 //Login Route for deliveryGuy
 
@@ -327,7 +324,6 @@ router.post("/assign/:id", auth, async (req, res)=>{
  *        "400":
  *          description: An error occured
  */
-
 
 router.post("/login", async (req, res) => {
   try {
@@ -407,9 +403,7 @@ router.post("/logoutAll", auth, async (req, res) => {
 
 //Route to read deliveryGuy profile
 
-
-
- /**
+/**
  * @swagger
  * path:
  *  /deliveryguy/me:
@@ -437,7 +431,7 @@ router.post("/logoutAll", auth, async (req, res) => {
  *                          name:
  *                            type: string
  *                            description: Name of the Restaurant
- *                          contactNos: 
+ *                          contactNos:
  *                            type: array
  *                            items:
  *                              type: string
@@ -512,13 +506,13 @@ router.post("/logoutAll", auth, async (req, res) => {
  *                    description: Name of deliveryGuy
  *                  phone:
  *                    type: string
- *                    description: Phone no of deliveryGuy 
+ *                    description: Phone no of deliveryGuy
  *        "400":
  *         description: Please Authenticate
  */
 router.get("/me", auth, async (req, res) => {
-  const user = req.user
-  const orders = await user.populate('orders').execPopulate()
+  const user = req.user;
+  const orders = await user.populate("orders").execPopulate();
   res.send(user);
 });
 
@@ -594,14 +588,14 @@ router.delete("/me", auth, async (req, res) => {
 });
 
 //post request for registration token
-router.post("/regToken",auth,async(req, res)=>{
+router.post("/regToken", auth, async (req, res) => {
   try {
-    req.user.regToken = req.body.regToken
-    await req.user.save()
-    res.status(200).send(req.user)
+    req.user.regToken = req.body.regToken;
+    await req.user.save();
+    res.status(200).send(req.user);
   } catch (e) {
-    res.status(500).send(e)
+    res.status(500).send(e);
   }
-})
+});
 
 module.exports = router;
