@@ -2,13 +2,12 @@ const express = require("express");
 const User = require("../models/user");
 const Restaurant = require("../models/restaurant");
 const Order = require("../models/order");
-const deliveryGuy = require("../models/deliveryGuy")
+const deliveryGuy = require("../models/deliveryGuy");
 const auth = require("../middleware/userauth");
 const router = express.Router();
 
-
 //==============Seeding===============
-// if (process.env.NODE_ENV != "prod") {
+// if (process.env.NODE_ENV != "production") {
 //   const user_seed = require("../seeds/user_seed");
 //   user_seed();
 // }
@@ -175,7 +174,7 @@ router.post("/login", async (req, res) => {
     );
     const token = await user.generateAuthToken();
     res.status(200);
-    res.send({ user, token});
+    res.send({ user, token });
   } catch (e) {
     res.status(400).send();
   }
@@ -270,7 +269,7 @@ router.post("/logoutAll", auth, async (req, res) => {
  *                              name:
  *                                type: string
  *                                description: Name of the Restaurant
- *                              contactNos: 
+ *                              contactNos:
  *                                type: array
  *                                items:
  *                                  type: string
@@ -348,15 +347,15 @@ router.post("/logoutAll", auth, async (req, res) => {
  *                        description: Default address of user
  *                      phone:
  *                        type: string
- *                        description: Phone no of user 
+ *                        description: Phone no of user
  *        "400":
  *         description: Please Authenticate
  */
 router.get("/me", auth, async (req, res) => {
-  const user = req.user
-  const orders = await user.populate('orders').execPopulate()
+  const user = req.user;
+  const orders = await user.populate("orders").execPopulate();
   res.status(200);
-  res.send({user});
+  res.send({ user });
 });
 /**
  * @swagger
@@ -572,10 +571,10 @@ router.post("/order", auth, async (req, res) => {
     });
     //console.log(newFoods);
     order.setTotal(newFoods);
-    if(!req.body.address){
-      order.address = user.address
-    }else{
-      order.address = req.body.address
+    if (!req.body.address) {
+      order.address = user.address;
+    } else {
+      order.address = req.body.address;
     }
     await order.setUser(user);
     await order.setRestaurant(restaurant);
@@ -595,7 +594,7 @@ router.post("/order", auth, async (req, res) => {
  * path:
  *   /user/status/{id}:
  *     patch:
- *       summary: Route to update order status to "LEFT" 
+ *       summary: Route to update order status to "LEFT"
  *       security:
  *         - bearerAuth: []
  *       tags: [user]
@@ -606,19 +605,21 @@ router.post("/order", auth, async (req, res) => {
  *         "200":
  *           description: Status Updated to "DELIVERED"
  *         "500":
- *           description: Error 
- * 
+ *           description: Error
+ *
  */
-router.patch('/status/:id', auth, async (req, res)=>{
+router.patch("/status/:id", auth, async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
-      status: 'DELIVERED'
-    })
-    res.status(200).send(`Order status Updated to "Deliverd"`)
+    const order = await Order.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        status: "DELIVERED",
+      }
+    );
+    res.status(200).send(`Order status Updated to "Deliverd"`);
   } catch (error) {
-    res.status(500).send(error)
+    res.status(500).send(error);
   }
-
-})
+});
 
 module.exports = router;

@@ -1,85 +1,85 @@
 const express = require("express");
 const router = express.Router();
-const multer = require('multer')
-const sharp = require('sharp')
+const multer = require("multer");
+const sharp = require("sharp");
 const Restaurant = require("../models/restaurant");
 const Food = require("../models/food");
-const Order = require("../models/order")
+const Order = require("../models/order");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
 
 //==============Seeding===============
-// if (process.env.NODE_ENV != "prod") {
+// if (process.env.NODE_ENV != "production") {
 //   const restaurant_seed = require("../seeds/restaurant_seed");
 //   restaurant_seed();
 // }
 
 //Function to upload picture of restaurant
-const upload = multer( {
-  limits:{
-      fileSize:1000000
+const upload = multer({
+  limits: {
+    fileSize: 1000000,
   },
   fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      cb(new Error("Please upload jpg,jpeg or png file only"));
+    }
 
-      if(!file.originalname.match(/\.(jpg|jpeg|png)$/)){
-          cb(new Error('Please upload jpg,jpeg or png file only'))
-      }
-
-      cb(undefined, true)
-  }
-} )
+    cb(undefined, true);
+  },
+});
 
 //Function to convert arrayBuffer to base 64
 function base64ArrayBuffer(arrayBuffer) {
-  var base64    = ''
-  var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  var base64 = "";
+  var encodings =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-  var bytes         = new Uint8Array(arrayBuffer)
-  var byteLength    = bytes.byteLength
-  var byteRemainder = byteLength % 3
-  var mainLength    = byteLength - byteRemainder
+  var bytes = new Uint8Array(arrayBuffer);
+  var byteLength = bytes.byteLength;
+  var byteRemainder = byteLength % 3;
+  var mainLength = byteLength - byteRemainder;
 
-  var a, b, c, d
-  var chunk
+  var a, b, c, d;
+  var chunk;
 
   // Main loop deals with bytes in chunks of 3
   for (var i = 0; i < mainLength; i = i + 3) {
     // Combine the three bytes into a single integer
-    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+    chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 
     // Use bitmasks to extract 6-bit segments from the triplet
-    a = (chunk & 16515072) >> 18 // 16515072 = (2^6 - 1) << 18
-    b = (chunk & 258048)   >> 12 // 258048   = (2^6 - 1) << 12
-    c = (chunk & 4032)     >>  6 // 4032     = (2^6 - 1) << 6
-    d = chunk & 63               // 63       = 2^6 - 1
+    a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+    b = (chunk & 258048) >> 12; // 258048   = (2^6 - 1) << 12
+    c = (chunk & 4032) >> 6; // 4032     = (2^6 - 1) << 6
+    d = chunk & 63; // 63       = 2^6 - 1
 
     // Convert the raw binary segments to the appropriate ASCII encoding
-    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+    base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
   }
 
   // Deal with the remaining bytes and padding
   if (byteRemainder == 1) {
-    chunk = bytes[mainLength]
+    chunk = bytes[mainLength];
 
-    a = (chunk & 252) >> 2 // 252 = (2^6 - 1) << 2
+    a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
 
     // Set the 4 least significant bits to zero
-    b = (chunk & 3)   << 4 // 3   = 2^2 - 1
+    b = (chunk & 3) << 4; // 3   = 2^2 - 1
 
-    base64 += encodings[a] + encodings[b] + '=='
+    base64 += encodings[a] + encodings[b] + "==";
   } else if (byteRemainder == 2) {
-    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1]
+    chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
 
-    a = (chunk & 64512) >> 10 // 64512 = (2^6 - 1) << 10
-    b = (chunk & 1008)  >>  4 // 1008  = (2^6 - 1) << 4
+    a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
+    b = (chunk & 1008) >> 4; // 1008  = (2^6 - 1) << 4
 
     // Set the 2 least significant bits to zero
-    c = (chunk & 15)    <<  2 // 15    = 2^4 - 1
+    c = (chunk & 15) << 2; // 15    = 2^4 - 1
 
-    base64 += encodings[a] + encodings[b] + encodings[c] + '='
+    base64 += encodings[a] + encodings[b] + encodings[c] + "=";
   }
-  
-  return base64
+
+  return base64;
 }
 
 //=========================== Routes==================================
@@ -132,10 +132,21 @@ router.get("/test", (req, res) => {
 /**
  * @swagger
  * path:
- *  /restaurant:
+ *  /restaurant?pageNo=1&size=10:
  *    get:
  *      summary: get a list of all restaurants
  *      tags: [Restaurant]
+ *      parameters:
+ *        - in: query
+ *          name: pageNo
+ *          schema:
+ *            type: integer
+ *          description: the page number
+ *        - in: query
+ *          name: size
+ *          schema:
+ *            type: integer
+ *          description: The number of items to return
  *      responses:
  *        "200":
  *          description: Gives back all the restaurants
@@ -147,20 +158,32 @@ router.get("/test", (req, res) => {
  *
  */
 router.get("/", (req, res) => {
-  Restaurant.find({}, (err, restaurants) => {
+  const pageNo = parseInt(req.query.pageNo) || 1;
+  const size = parseInt(req.query.size) || 10;
+  if (pageNo < 0 || pageNo === 0) {
+    response = {
+      error: true,
+      message: "invalid page number, should start with 1",
+    };
+    return res.json(response);
+  }
+  query.skip = size * (pageNo - 1);
+  query.limit = size;
+
+  Restaurant.find({}, {}, query, (err, restaurants) => {
     if (err) {
       console.log(err);
       res.status(500).json(err);
     } else {
       var data = [];
-      restaurants.forEach(restaurant => {
+      restaurants.forEach((restaurant) => {
         data.push({
           id: restaurant._id,
           name: restaurant.name,
           //foods: restaurant.foods,
           //contacts: restaurant.contactNos,
           image: base64ArrayBuffer(restaurant.image),
-          address: restaurant.address
+          address: restaurant.address,
         });
       });
       res.json(data);
@@ -335,7 +358,7 @@ router.post("/login", async (req, res) => {
 
 router.post("/logout", auth, async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filter(token => {
+    req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
@@ -454,7 +477,7 @@ router.get("/me", auth, async (req, res) => {
 router.patch("/", auth, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ["name", "password", "address", "contactNos"];
-  const isValidOperation = updates.every(update =>
+  const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );
 
@@ -464,18 +487,17 @@ router.patch("/", auth, async (req, res) => {
   if (updates.contactNos && !updates.contactNos.isArray()) {
     return res.status(400).send({
       error:
-        "contactNos should be an array containing all the numbers of the restaurants including the old ones!"
+        "contactNos should be an array containing all the numbers of the restaurants including the old ones!",
     });
   }
   try {
-    updates.forEach(update => (req.user[update] = req.body[update]));
+    updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     res.status(200).send(req.user);
   } catch (e) {
     res.status(400).send(e);
   }
 });
-
 
 //Timestamps
 
@@ -484,7 +506,7 @@ router.patch("/", auth, async (req, res) => {
 //   // timestamp in seconds
 //   console.log( "currentTS- "+ Math.floor(ts/1000));
 
-//   return Math.floor(ts/1000) 
+//   return Math.floor(ts/1000)
 // }
 
 // const orderTS = (str)=>{
@@ -493,7 +515,6 @@ router.patch("/", auth, async (req, res) => {
 //   console.log("OrderTS- " +Math.floor(orderts/1000));
 //   return Math.floor(orderts/1000)
 // }
-
 
 //Route for notification
 
@@ -533,7 +554,7 @@ router.patch("/", auth, async (req, res) => {
  *                      name:
  *                         type: string
  *                         description: Name of the User
- *                      phone: 
+ *                      phone:
  *                        type: string
  *                        description: Phone number of the user
  *                  deliveryGuy:
@@ -581,34 +602,33 @@ router.patch("/", auth, async (req, res) => {
  *          description: An error occured
  */
 
-router.get('/notify', auth, async (req, res)=>{
+router.get("/notify", auth, async (req, res) => {
   try {
-    var restaurant = req.user
-    var result = await restaurant.populate('orders').execPopulate()
-    var data = []
-    result.orders.forEach(async (order)=>{
-      if(!order.restNotification){
-        data.push(order)
-        await Order.findByIdAndUpdate({ _id : order._id }, {
-          restNotification : true
-        }, (err, res)=>{
-          if(err){
-            console.log(err)
+    var restaurant = req.user;
+    var result = await restaurant.populate("orders").execPopulate();
+    var data = [];
+    result.orders.forEach(async (order) => {
+      if (!order.restNotification) {
+        data.push(order);
+        await Order.findByIdAndUpdate(
+          { _id: order._id },
+          {
+            restNotification: true,
+          },
+          (err, res) => {
+            if (err) {
+              console.log(err);
+            } else {
+            }
           }
-          else{
-          }
-        })
+        );
       }
-    })
-    res.status(200).send(data)
+    });
+    res.status(200).send(data);
   } catch (e) {
-    res.status(500).send(e)
+    res.status(500).send(e);
   }
-})
-
-
-
-
+});
 
 // get the details of the restaurant for details page
 
@@ -659,12 +679,12 @@ router.get("/:_id", async (req, res) => {
 
     if (!restaurant) {
       return res.status(404).json({
-        error: "No such restaurant found!"
+        error: "No such restaurant found!",
       });
     }
 
     res.status(200).json({
-      restaurant: restaurant
+      restaurant: restaurant,
       // _id: restaurant._id,
       // name: restaurant.name,
       // contactNos: restaurant.contactNos,
@@ -718,13 +738,13 @@ router.post("/food", auth, async (req, res) => {
     const food = await Food.findById(req.body.foodid);
     if (!food) {
       res.status(404).json({
-        error: "Food doesn't exist"
+        error: "Food doesn't exist",
       });
     } else {
       const restaurant = req.user;
       restaurant.foods.push({
         foodid: req.body.foodid,
-        price: req.body.price
+        price: req.body.price,
       });
       const result = await restaurant.save();
 
@@ -769,7 +789,7 @@ router.post("/food", auth, async (req, res) => {
 router.delete("/food", auth, async (req, res) => {
   try {
     const restaurant = req.user;
-    restaurant.foods = restaurant.foods.filter(obj => {
+    restaurant.foods = restaurant.foods.filter((obj) => {
       return obj.foodid != req.body.foodid;
     });
     const food = await Food.findById(req.body.foodid);
@@ -780,9 +800,9 @@ router.delete("/food", auth, async (req, res) => {
       }
     }
     food.restaurants = arr;
-    if(food.restaurants.length == 0){
-      await food.remove()
-    }else{
+    if (food.restaurants.length == 0) {
+      await food.remove();
+    } else {
       food.save();
     }
     const result = await restaurant.save();
@@ -793,14 +813,13 @@ router.delete("/food", auth, async (req, res) => {
   }
 });
 
-
 //route to upload image of the restaurant
 /**
  * @swagger
  * path:
  *   /restaurant/image:
  *     post:
- *       summary: Route to upload image of the restaurant(File size should not exceed 1 MB) 
+ *       summary: Route to upload image of the restaurant(File size should not exceed 1 MB)
  *       security:
  *         - bearerAuth: []
  *       required: true
@@ -815,22 +834,22 @@ router.delete("/food", auth, async (req, res) => {
  *         "200":
  *           description: Added Restaurant picture successfully
  *         "400":
- *           description: Unable to add restaurant picture 
- * 
+ *           description: Unable to add restaurant picture
+ *
  */
-router.post('/image', auth, upload.single('image'), async (req, res) => {
+router.post("/image", auth, upload.single("image"), async (req, res) => {
   try {
-    const buffer = await sharp(req.file.buffer).resize( {width:870, height:565} ).png().toBuffer()
-    req.user.image = buffer
-    await req.user.save()
-    res.send("Added Restaurant Picture Successfully")
+    const buffer = await sharp(req.file.buffer)
+      .resize({ width: 870, height: 565 })
+      .png()
+      .toBuffer();
+    req.user.image = buffer;
+    await req.user.save();
+    res.send("Added Restaurant Picture Successfully");
   } catch (error) {
-    res.status(400).send(error)
+    res.status(400).send(error);
   }
-},(error, req, res, next) => {
-  res.status(400).send({error: error.message})
-})
-
+});
 
 //Route to update order status
 /**
@@ -838,7 +857,7 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
  * path:
  *   /restaurant/status/{id}:
  *     patch:
- *       summary: Route to update order status to "LEFT" 
+ *       summary: Route to update order status to "LEFT"
  *       security:
  *         - bearerAuth: []
  *       tags: [Restaurant]
@@ -849,19 +868,21 @@ router.post('/image', auth, upload.single('image'), async (req, res) => {
  *         "200":
  *           description: Status Updated to "LEFT"
  *         "500":
- *           description: Error 
- * 
+ *           description: Error
+ *
  */
-router.patch('/status/:id', auth, async(req, res)=>{
+router.patch("/status/:id", auth, async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate({_id: req.params.id},{
-      status: "LEFT"
-    })
-    res.status(200).send(`Status Updated to "LEFT"`)
+    const order = await Order.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        status: "LEFT",
+      }
+    );
+    res.status(200).send(`Status Updated to "LEFT"`);
   } catch (error) {
-    res.status(500).send(error)
+    res.status(500).send(error);
   }
-
-})
+});
 
 module.exports = router;

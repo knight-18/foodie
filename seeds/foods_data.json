@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Hot Coffee",
+    "price": "18"
+  },
+  {
+    "name": "Hot Tea",
+    "price": "14"
+  },
+  {
+    "name": "Masala Dosa",
+    "price": "70"
+  },
+  {
+    "name": "Paneer Dosa",
+    "price": "95"
+  },
+  {
+    "name": "Pav Bhaji",
+    "price": "75"
+  },
+  {
+    "name": "Chole Tikka",
+    "price": "70"
+  },
+  {
+    "name": "Veg Sandwiches",
+    "price": "40"
+  },
+  {
+    "name": "Chicken Sandwiches",
+    "price": "95"
+  },
+  {
+    "name": "Grill Chicken Chilly",
+    "price": "110"
+  },
+  {
+    "name": "Masala Fries",
+    "price": "60"
+  },
+  {
+    "name": "Cheese Fries",
+    "price": "80"
+  },
+  {
+    "name": "Garlic Bread",
+    "price": "70"
+  },
+  {
+    "name": "Cheese Garlic Bread",
+    "price": "80"
+  },
+  {
+    "name": "Simple Nachos",
+    "price": "80"
+  },
+  {
+    "name": "Spring Roll",
+    "price": "80"
+  },
+  {
+    "name": "Red Sauce Pasta",
+    "price": "150"
+  },
+  {
+    "name": "White Sauce Pasta",
+    "price": "180"
+  },
+  {
+    "name": "Veg Burger",
+    "price": "50"
+  },
+  {
+    "name": "Egg Burger",
+    "price": "70"
+  },
+  {
+    "name": "Chicken Burger",
+    "price": "100"
+  }
+]
