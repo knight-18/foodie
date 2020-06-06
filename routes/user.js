@@ -168,6 +168,9 @@ router.post("/", async (req, res) => {
 //Login Route for user
 router.post("/login", async (req, res) => {
   try {
+    console.log("reached");
+    console.log(req.body);
+
     const user = await User.findByCredentials(
       req.body.phone,
       req.body.password
@@ -176,7 +179,7 @@ router.post("/login", async (req, res) => {
     res.status(200);
     res.send({ user, token });
   } catch (e) {
-    res.status(400).send();
+    res.status(400).send(e);
   }
 });
 
