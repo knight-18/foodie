@@ -11,6 +11,18 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(cors());
 
+//Setting EJS view engine
+app.set('view engine','ejs');
+
+//body parser
+app.use(express.urlencoded({extended:true}));
+
+//Setup for rendering static pages
+//for static page
+app.use(express.static("public"))
+// app.use(methodOverride("_method"));
+
+
 const routes = require("./routes/index");
 const connectDB = require("./connect");
 
