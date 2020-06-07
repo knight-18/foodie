@@ -105,7 +105,6 @@ router.get("/test", (req, res) => {
 //Route to create User
 router.post("/", async (req, res) => {
   const user = new User(req.body);
-
   try {
     await user.save();
     const token = await user.generateAuthToken();

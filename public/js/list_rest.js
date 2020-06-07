@@ -28,6 +28,7 @@ fetch("https://knight-foodji.herokuapp.com/api/restaurant", {
       var p = document.createElement("p");
       p.className = "pt-3";
       var h5 = document.createElement("h5");
+      var a = document.createElement("a")
 
       container.appendChild(colmd4colsm6);
       colmd4colsm6.appendChild(singlefood);
@@ -38,7 +39,10 @@ fetch("https://knight-foodji.herokuapp.com/api/restaurant", {
       singlefood.appendChild(foodcontent);
       foodcontent.appendChild(dflex);
       dflex.appendChild(h5);
-      h5.innerHTML = element.name;
+      // h5.innerHTML = element.name;
+      h5.appendChild(a)
+      a.setAttribute("href",`../../ui/restaurant/restfood/${element.id}`)
+      a.innerHTML= element.name
       dflex.appendChild(span);
       foodcontent.appendChild(p);
       p.innerHTML = element.address;
