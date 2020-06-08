@@ -70,6 +70,7 @@ connectDB();
 // Using the routes
 app.use("/", routes);
 
+
 app.listen(PORT, () => {
   console.log(`Listening on PORT:${PORT}
 You can look at it at http://localhost:${PORT}/`);

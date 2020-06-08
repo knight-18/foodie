@@ -1,6 +1,6 @@
-var container = document.getElementById("container");
-
-fetch("https://knight-foodji.herokuapp.com/api/restaurant", {
+var container = document.querySelector("#ritem");
+var containerBig = document.getElementById("container");
+fetch("https://knight-foodji.herokuapp.com/api/restaurant?pageNo=1&size=10", {
   accept: "application/json",
   mode: "cors",
   method: "GET",
@@ -10,42 +10,30 @@ fetch("https://knight-foodji.herokuapp.com/api/restaurant", {
   })
   .then(function (data) {
     data.forEach((element) => {
-      console.log(element);
-      var colmd4colsm6 = document.createElement("div");
-      colmd4colsm6.className = "col-md-4 col-sm-6";
-      var singlefood = document.createElement("div");
-      singlefood.className = "single-food";
-      var foodiimg = document.createElement("div");
-      foodiimg.className = "food-img";
-      var img = document.createElement("img");
-      img.className = "img-fluid";
-      var foodcontent = document.createElement("div");
-      foodcontent.className = "food-content";
-      var dflex = document.createElement("div");
-      dflex.className = "d-flex justify-content-between";
-      var span = document.createElement("span");
-      span.className = "style-change";
-      var p = document.createElement("p");
-      p.className = "pt-3";
-      var h5 = document.createElement("h5");
-      var a = document.createElement("a")
+      var restaurant = container.cloneNode(true);
 
-      container.appendChild(colmd4colsm6);
-      colmd4colsm6.appendChild(singlefood);
-      singlefood.appendChild(foodiimg);
-      foodiimg.appendChild(img);
-      img.src = element.image;
+      restaurant.childNodes[1]["attributes"]["href"]["value"] = `../../ui/restaurant/${element.name}/${element.id}`
+        // "restaurant/" + element.name + "/" + element.id;
 
-      singlefood.appendChild(foodcontent);
-      foodcontent.appendChild(dflex);
-      dflex.appendChild(h5);
-      // h5.innerHTML = element.name;
-      h5.appendChild(a)
-      a.setAttribute("href",`../../ui/restaurant/restfood/${element.id}`)
-      a.innerHTML= element.name
-      dflex.appendChild(span);
-      foodcontent.appendChild(p);
-      p.innerHTML = element.address;
-      console.log("Added");
+      // console.log(a);
+
+      var img =
+        restaurant.childNodes[1].childNodes[1].childNodes[1].childNodes[1];
+      img["attributes"][0]["value"] = element.image;
+
+      var name =
+        restaurant.childNodes[1].childNodes[1].childNodes[3].childNodes[1]
+          .childNodes[1];
+      name["innerText"] = element.name;
+
+      var address =
+        restaurant.childNodes[1].childNodes[1].childNodes[3].childNodes[3];
+      address["innerText"] = element.address;
+
+      container.after(restaurant);
+      // containerBig.removeChild(containerBig.firstChild);
     });
+  })
+  .then((_) => {
+    containerBig.removeChild(containerBig.childNodes[1]);
   });

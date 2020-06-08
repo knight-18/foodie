@@ -167,9 +167,6 @@ router.post("/", async (req, res) => {
 //Login Route for user
 router.post("/login", async (req, res) => {
   try {
-    console.log("reached");
-    console.log(req.body);
-
     const user = await User.findByCredentials(
       req.body.phone,
       req.body.password
