@@ -5,6 +5,7 @@ const Order = require("../models/order");
 const deliveryGuy = require("../models/deliveryGuy");
 const auth = require("../middleware/userauth");
 const router = express.Router();
+const orderAccept = require("../nodemailer/nodemailer")
 
 //==============Seeding===============
 // if (process.env.NODE_ENV != "production") {
@@ -200,13 +201,15 @@ router.post("/login", async (req, res) => {
 //Logout route for user
 router.post("/logout", auth, async (req, res) => {
   try {
+    console.log('logout called')
     req.user.tokens = req.user.tokens.filter((token) => {
       return token.token !== req.token;
     });
     await req.user.save();
-
+    console.log("logged out")
     res.send("Logged out");
   } catch (e) {
+    console.log(e)
     res.status(500).send(e);
   }
 });
@@ -580,9 +583,10 @@ router.post("/order", auth, async (req, res) => {
     await order.setFoods(newFoods);
 
     const result = await order.save();
-
+    orderAccept(user)
     res.status(200).json(result);
   } catch (error) {
+    console.log("error: ",error)
     res.status(500).json(error);
   }
 });

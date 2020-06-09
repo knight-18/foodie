@@ -2,15 +2,17 @@ const express = require('express')
 const router = express.Router()
 const request = require('request')
 
+//Route for restaurant login
+router.get('/login',(req, res)=>{
+    res.render("restLogin")
+})
+
+
 //Route to render list of all restaurants
 router.get("/:pg", function (req, res) {
   res.render("restaurant", { pagenumber: req.params.pg });
 });
 
-//Route for restaurant login
-router.get('/login',(req, res)=>{
-    res.render("restLogin")
-})
 
 router.get("/:restaurantname/:id", function (req, res) {
   res.render("foodItems", {

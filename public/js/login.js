@@ -23,7 +23,7 @@ loginForm.onsubmit = (e) => {
     .then((data) => {
       localStorage.setItem("foodji-user-auth-header", "Bearer " + data.token);
       localStorage.setItem("foodji-user-name", data.user.name);
-      window.location = "../../ui/restaurant/1";
+      window.location = "../../ui/user/user_profile";
     })
     .catch((err) => console.log(err));
   //   //   console.log(phone, password);
