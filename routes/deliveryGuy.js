@@ -261,6 +261,7 @@ router.post("/assign/:id", auth, async (req, res) => {
       order.deliveryGuy._id = req.user._id;
       order.deliveryGuy.name = req.user.name;
       order.deliveryGuy.phone = req.user.phone;
+      order.deliveryGuy.email = req.user.email
       req.user.orders.push(order._id);
       order.assign = true;
       await order.save();

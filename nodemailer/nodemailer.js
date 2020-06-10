@@ -15,7 +15,7 @@ const orderPlaced = (data) => {
       
       var mailOptions = {
         from: process.env.NODEMAILER_EMAIL,
-        to: process.env.NODEMAILER_SECONDEMAIL,
+        to: data.email,
         subject:`New Order`,
         html:`<p>A new order has been placed by ${data.name}. <a href="https://www.google.com/">Click here</a> to accept or decline the order.</p>`
       };

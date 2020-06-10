@@ -585,7 +585,7 @@ router.post("/order", auth, async (req, res) => {
     const result = await order.save();
     orderPlaced({
       name : user.name,
-      email: user.email 
+      email: restaurant.email 
     })
     res.status(200).json(result);
   } catch (error) {

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 var mongooseTypePhone = require("mongoose-type-phone");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const validator = require("validator")
 
 const Schema = mongoose.Schema;
 
@@ -50,6 +51,18 @@ const DeliveryGuySchema = new Schema(
     phone: {
       type: String,
       required: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is invalid");
+        }
+      }
     },
     username: {
       type: String,
@@ -106,7 +119,7 @@ DeliveryGuySchema.methods.generateAuthToken = async function () {
     expiresIn: process.env.JWT_EXPIRE || 129600,
   });
 
-  user.tokens = user.tokens.concat({ token });
+  // user.tokens = user.tokens.concat({ token });
   await user.save();
 
   return token;

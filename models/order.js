@@ -123,6 +123,9 @@ const OrderSchema = new Schema(
       name: {
         type: String
       },
+      email: {
+        type: String
+      },
       contactNos: [
         {
           type: String,
@@ -140,6 +143,9 @@ const OrderSchema = new Schema(
       },
       phone: {
         type: String
+      },
+      email:{
+        type: String
       }
     },
     address:{
@@ -156,11 +162,14 @@ const OrderSchema = new Schema(
       },
       phone: {
         type: String
+      },
+      email:{
+        type: String
       }
     },
     status: {
       type: String,
-      enum: ["RECIEVED", "LEFT", "DELIVERED", "CANCELED","REJECTED"],
+      enum: ["RECIEVED", "LEFT", "DELIVERED", "CANCELED","REJECTED","ACCEPTED"],
       default: "RECIEVED"
     },
     payment: {
@@ -281,7 +290,8 @@ OrderSchema.methods.setUser = async function(user) {
     order.user = {
       _id: user._id,
       name: user.name,
-      phone: user.phone
+      phone: user.phone,
+      email: user.email
     };
     // Save them both
 
@@ -302,7 +312,8 @@ OrderSchema.methods.setRestaurant = async function(restaurant) {
     order.restaurant = {
       _id: restaurant._id,
       name: restaurant.name,
-      contactNos: restaurant.contactNos
+      contactNos: restaurant.contactNos,
+      email: restaurant.email
     };
     // Save them both
     await order.save();

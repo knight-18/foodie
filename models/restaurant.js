@@ -91,7 +91,18 @@ const RestaurantSchema = new Schema(
         allowBlank: false,
       },
     ],
-
+    email : {
+      type: String,
+      unique: true,
+      required: true,
+      trim: true,
+      lowercase: true,
+      validate(value) {
+        if (!validator.isEmail(value)) {
+          throw new Error("Email is invalid");
+        }
+      }
+    },
     address: {
       type: String,
       required: true,
@@ -147,7 +158,7 @@ RestaurantSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || 129600,
   });
-  user.tokens = user.tokens.concat({ token });
+  // user.tokens = user.tokens.concat({ token });
   await user.save();
 
   return token;

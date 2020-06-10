@@ -908,7 +908,8 @@ router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
         email: deliveryGuy.email
       })
     })
-    
+    order.status = "ACCEPTED"
+    await order.save()
 
     res.status(200).json({response: "Order Accepted"})
   } catch (error) {
