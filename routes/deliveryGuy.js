@@ -270,7 +270,7 @@ router.post("/assign/:id", auth, async (req, res) => {
       res.status(400).send("DeliveryGuy already Assigned.");
     }
   } catch (error) {
-    res.status(400).send(error);
+    res.status(500).send(error);
   }
 });
 
@@ -587,15 +587,21 @@ router.delete("/me", auth, async (req, res) => {
   }
 });
 
-//post request for registration token
-router.post("/regToken", auth, async (req, res) => {
+//Route to get a particular order from objectId of a order.(deliveryGuy authorization required)
+router.get('/order/:id',auth, async (req, res) => {
   try {
-    req.user.regToken = req.body.regToken;
-    await req.user.save();
-    res.status(200).send(req.user);
-  } catch (e) {
-    res.status(500).send(e);
+    const order = await Order.findById(req.params.id)
+    if(!order){
+      res.json({error:"Incorrect orderID"})
+    }
+
+    res.send(order)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
   }
-});
+
+
+})
 
 module.exports = router;

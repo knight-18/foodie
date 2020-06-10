@@ -5,7 +5,7 @@ const Order = require("../models/order");
 const deliveryGuy = require("../models/deliveryGuy");
 const auth = require("../middleware/userauth");
 const router = express.Router();
-const orderAccept = require("../nodemailer/nodemailer")
+const {orderPlaced} = require("../nodemailer/nodemailer")
 
 //==============Seeding===============
 // if (process.env.NODE_ENV != "production") {
@@ -583,7 +583,10 @@ router.post("/order", auth, async (req, res) => {
     await order.setFoods(newFoods);
 
     const result = await order.save();
-    orderAccept(user)
+    orderPlaced({
+      name : user.name,
+      email: user.email 
+    })
     res.status(200).json(result);
   } catch (error) {
     console.log("error: ",error)

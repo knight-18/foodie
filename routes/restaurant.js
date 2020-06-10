@@ -7,6 +7,8 @@ const Food = require("../models/food");
 const Order = require("../models/order");
 const superAdminAuth = require("../middleware/super_admin_middleware");
 const auth = require("../middleware/restauth");
+const {orderPlaced, orderAccepted, orderRejected, contactDeliveryBoy} = require('../nodemailer/nodemailer')
+const DeliveryGuy = require("../models/deliveryGuy")
 
 //==============Seeding===============
 // if (process.env.NODE_ENV != "production") {
@@ -885,6 +887,54 @@ router.patch("/status/:id", auth, async (req, res) => {
     res.status(500).send(error);
   }
 });
+
+//Route to accept or order
+router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
+  try {
+    const order = await Order.findById(req.params.id)
+    if(!order){
+      res.json({error: "Can not fetch Order from orderID"})
+    }
+    orderAccepted({
+      email: order.user.email,
+      name: order.user.name
+    })
+    const deliveryGuys = await DeliveryGuy.find({})
+    if(!deliveryGuys){
+      console.log("No delivery Guy found")
+    }
+    deliveryGuys.forEach( (deliveryGuy)=>{
+      contactDeliveryBoy({
+        email: deliveryGuy.email
+      })
+    })
+    
+
+    res.status(200).json({response: "Order Accepted"})
+  } catch (error) {
+      res.status(500).send(error)
+  }
+})
+
+//Route to decline order
+router.post('/order/accept/reject/:id', auth, async(req, res)=>{
+  try {
+    const order = await Order.findById(req.params.id)
+    if(!order){
+      res.json({error:"Can not fetch order from orderID"})
+    }
+    orderRejected({
+      email: order.user.email,
+      name: order.user.name
+    })
+    order.status = "REJECTED"
+    await order.save()
+    res.status(200).json({message:"Order rejected"})
+  } catch (error) {
+    res.status(500).send(error)
+  }
+
+})
 
 //Route to get a particular order from objectId of a order.(Restaurant authorization required)
 router.get('/order/:id',auth, async (req, res) => {

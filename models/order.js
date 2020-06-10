@@ -160,7 +160,7 @@ const OrderSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["RECIEVED", "LEFT", "DELIVERED", "CANCELED"],
+      enum: ["RECIEVED", "LEFT", "DELIVERED", "CANCELED","REJECTED"],
       default: "RECIEVED"
     },
     payment: {
