@@ -628,4 +628,26 @@ router.patch("/status/:id", auth, async (req, res) => {
   }
 });
 
+//Route to login as superadmin
+router.post('/super', async(req, res)=>{
+  try {
+    const username = req.body.username
+    const password = req.body.password
+  
+    if((username != process.env.superUserName) || (password != process.env.superPassword) ){
+      res.status(401).send("Invalid Credentials")
+    }
+    const token = jwt.sign({ superAdmin: `${username}${password}` }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE || 129600,
+    })
+  console.log(token)
+    res.status(200).send({token})
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+
+
+})
+
 module.exports = router;
