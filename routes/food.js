@@ -263,6 +263,7 @@ router.post("/", restAuth, async (req, res) => {
     const result = await food.save();
     const restaurant = req.user;
     restaurant.foods.push({
+      name: result.name,
       foodid: result._id,
       price: req.body.price,
     });
