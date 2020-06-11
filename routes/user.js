@@ -5,6 +5,8 @@ const Order = require("../models/order");
 const deliveryGuy = require("../models/deliveryGuy");
 const auth = require("../middleware/userauth");
 const router = express.Router();
+const jwt = require("jsonwebtoken")
+const superAdminAuth = require('../middleware/super_admin_middleware')
 const {orderPlaced} = require("../nodemailer/nodemailer")
 
 //==============Seeding===============
@@ -634,7 +636,7 @@ router.post('/super', async(req, res)=>{
     const username = req.body.username
     const password = req.body.password
   
-    if((username != process.env.superUserName) || (password != process.env.superPassword) ){
+    if((username != process.env.superUsername) || (password != process.env.superPassword) ){
       res.status(401).send("Invalid Credentials")
     }
     const token = jwt.sign({ superAdmin: `${username}${password}` }, process.env.JWT_SECRET, {
