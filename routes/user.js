@@ -652,4 +652,36 @@ router.post('/super', async(req, res)=>{
 
 })
 
+
+//Route to fetch all the orders of a restaurant for superAdmin (Super Admin)
+router.get('/super/orders', superAdminAuth, async (req, res)=>{
+  try {
+    const pageNo = parseInt(req.query.pageNo) || 1;
+    const size = parseInt(req.query.size) || 10;
+    if (pageNo < 0 || pageNo === 0) {
+      response = {
+        error: true,
+        message: "invalid page number, should start with 1",
+      };
+      return res.json(response);
+    }
+    let query = {};
+    query.skip = size * (pageNo - 1);
+    query.limit = size;
+    Order.find({}, {}, query, (err, orders) => {
+      if (err) {
+        console.log(err)
+        res.status(500).json(err);
+      } else {
+        
+        res.status(200).json(orders);
+      }
+    });
+    
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+})
+
 module.exports = router;
