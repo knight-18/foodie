@@ -918,7 +918,7 @@ router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
 })
 
 //Route to decline order
-router.post('/order/accept/reject/:id', auth, async(req, res)=>{
+router.post('/order/acceptreject/reject/:id', auth, async(req, res)=>{
   try {
     const order = await Order.findById(req.params.id)
     if(!order){

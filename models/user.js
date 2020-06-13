@@ -54,6 +54,11 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      validate(value){
+        if(value.length != 10){
+          throw new Error("Invalid Phone Number")
+        }
+      }
     },
     email: {
       type: String,
