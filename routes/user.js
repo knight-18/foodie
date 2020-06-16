@@ -631,7 +631,7 @@ router.patch("/order/status/:id", auth, async (req, res) => {
   }
 });
 //Route to cancel order
-router.patch("/order/status/:id", auth, async (req, res) => {
+router.patch("/order/cancel/:id", auth, async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
       { _id: req.params.id },
