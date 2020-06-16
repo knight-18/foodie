@@ -631,6 +631,24 @@ router.patch("/status/:id", auth, async (req, res) => {
   }
 });
 
+
+//Route to get a particular order from objectId of a order.(User authorization required)
+router.get('/order/:id',auth, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id)
+    if(!order){
+      res.json({error:"Incorrect orderID"})
+    }
+
+    res.send(order)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+
+
+})
+
 //Route to login as superadmin
 router.post('/super', async(req, res)=>{
   try {
