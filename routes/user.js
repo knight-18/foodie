@@ -617,7 +617,7 @@ router.post("/order", auth, async (req, res) => {
  *           description: Error
  *
  */
-router.patch("/status/:id", auth, async (req, res) => {
+router.patch("/order/status/:id", auth, async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
       { _id: req.params.id },
@@ -630,6 +630,21 @@ router.patch("/status/:id", auth, async (req, res) => {
     res.status(500).send(error);
   }
 });
+//Route to cancel order
+router.patch("/order/status/:id", auth, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        status: "CANCELED",
+      }
+    );
+    res.status(200).send(`Order status Updated to "CANCELED"`);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 
 
 //Route to get a particular order from objectId of a order.(User authorization required)
