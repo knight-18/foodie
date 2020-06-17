@@ -910,6 +910,7 @@ router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
       })
     })
     order.status = "ACCEPTED"
+    order.eta = req.body.eta
     await order.save()
 
     res.status(200).json({response: "Order Accepted"})

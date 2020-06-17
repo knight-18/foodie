@@ -93,9 +93,8 @@ const OrderSchema = new Schema(
       type: Boolean,
       default: false
     },
-    restNotification: {
-      type: Boolean,
-      default: false
+    eta: {
+      type: String,
     },
     foods: [
       {
