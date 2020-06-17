@@ -17,7 +17,7 @@ const orderPlaced = (data) => {
         from: process.env.NODEMAILER_EMAIL,
         to: data.email,
         subject:`New Order`,
-        html:`<p>A new order has been placed by ${data.name}. <a href="https://foodji.co.in/acceptorder.html?id=${data.orderId}">Click here</a> to accept or decline the order.</p>`
+        html:`<p>A new order has been placed by ${data.name}. <a href="https://foodji.co.in/acceptorder.html">Click here</a> to accept or decline the order.</p>`
       };
       console.log("Mail options: ", mailOptions)
       
@@ -104,7 +104,7 @@ const orderPlaced = (data) => {
               from: process.env.NODEMAILER_EMAIL,
               to: data.email,
               subject:`New Order`,
-              html:`<p>A new order has been placed.. <a href="https://www.google.com/">Click here</a> to accept the order for delivery.</p></p>`
+              html:`<p>A new order has been placed. <a href="https://www.foodji.co.in/assigndelguy.html?id=${data.orderId}">Click here</a> to accept the order for delivery.</p></p>`
             };
             console.log("Mail options: ", mailOptions)
             

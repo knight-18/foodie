@@ -905,7 +905,8 @@ router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
     }
     deliveryGuys.forEach( (deliveryGuy)=>{
       contactDeliveryBoy({
-        email: deliveryGuy.email
+        email: deliveryGuy.email,
+        orderId: order._id
       })
     })
     order.status = "ACCEPTED"

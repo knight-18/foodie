@@ -625,7 +625,7 @@ router.patch("/order/status/:id", auth, async (req, res) => {
         status: "DELIVERED",
       }
     );
-    res.status(200).send(`Order status Updated to "Deliverd"`);
+    res.status(200).send(`Order status Updated to "Delivered"`);
   } catch (error) {
     res.status(500).send(error);
   }
