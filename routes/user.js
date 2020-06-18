@@ -631,16 +631,28 @@ router.patch("/order/status/:id", auth, async (req, res) => {
   }
 });
 //Route to cancel order
-router.patch("/order/cancel/:id", auth, async (req, res) => {
+router.post("/order/cancel/:id", auth, async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(
-      { _id: req.params.id },
-      {
-        status: "CANCELED",
-      }
-    );
+    // const order = await Order.findByIdAndUpdate(
+    //   { _id: req.params.id },
+    //   {
+    //     status: "CANCELED",
+    //   }
+    // );
+  
+    const order = await Order.findById({_id:req.params.id })
+    const restaurant = await Restaurant.findById({_id: order.restaurant._id})
+    
+    restaurant.orders = restaurant.orders.filter((orderId)=> orderId.toString() != order._id.toString())
+    req.user.orders = req.user.orders.filter((orderId)=> orderId.toString() != order._id.toString())
+   
+    await restaurant.save()
+    await req.user.save()
+    await order.remove()
+
     res.status(200).send(`Order status Updated to "CANCELED"`);
   } catch (error) {
+    console.log(error)
     res.status(500).send(error);
   }
 });
