@@ -104,7 +104,6 @@ const getResponse = function (foods) {
       return {
         name: restaurant.name,
         _id: restaurant.id,
-        image: base64ArrayBuffer(restaurant.image),
         price: price,
       };
     });
@@ -112,7 +111,6 @@ const getResponse = function (foods) {
     return {
       name: food.name,
       _id: food.id,
-      image: base64ArrayBuffer(food.image),
       restaurants: restaurantList,
     };
   });
@@ -325,7 +323,7 @@ router.post(
         throw new Error("Food doesn't exists");
       }
       const buffer = await sharp(req.file.buffer)
-        .resize({ width: 870, height: 565 })
+        .resize({ width: 500, height: 500 })
         .png()
         .toBuffer();
       food.image = buffer;
@@ -340,4 +338,15 @@ router.post(
   }
 );
 
+//route to get food image
+router.get('/image/:id', async (req, res) => {
+  try {
+      const food = await Food.findById({_id: req.params.id})
+      res.set('Content-Type','image/png')
+      res.status(200).send(food.image)
+
+  } catch (e) {
+      res.status(404).send(e)
+  }
+})
 module.exports = router;

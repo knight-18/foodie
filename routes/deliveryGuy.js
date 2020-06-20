@@ -560,7 +560,7 @@ router.get("/me", auth, async (req, res) => {
 
 router.patch("/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowedUpdates = ["phone", "password"]; //Updates allowed for deliveryGuy
+  const allowedUpdates = ["name","email","phone", "password"]; //Updates allowed for deliveryGuy
   const isValidOperation = updates.every((update) =>
     allowedUpdates.includes(update)
   );

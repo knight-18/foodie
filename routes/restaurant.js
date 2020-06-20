@@ -185,7 +185,6 @@ router.get("/", (req, res) => {
           name: restaurant.name,
           //foods: restaurant.foods,
           //contacts: restaurant.contactNos,
-          image: base64ArrayBuffer(restaurant.image),
           address: restaurant.address,
         });
       });
@@ -840,10 +839,10 @@ router.delete("/food", auth, async (req, res) => {
  *           description: Unable to add restaurant picture
  *
  */
-router.post("/image", auth, upload.single("image"), async (req, res) => {
+router.post("/image/avatar", auth, upload.single("image"), async (req, res) => {
   try {
     const buffer = await sharp(req.file.buffer)
-      .resize({ width: 870, height: 565 })
+      .resize({ width: 500, height: 500 })
       .png()
       .toBuffer();
     req.user.image = buffer;
@@ -853,6 +852,18 @@ router.post("/image", auth, upload.single("image"), async (req, res) => {
     res.status(400).send(error);
   }
 });
+
+//Route to get retaurant image
+router.get('/image/avatar/:id', async (req, res) => {
+  try {
+      const restaurant = await Restaurant.findById({_id: req.params.id})
+      res.set('Content-Type','image/png')
+      res.status(200).send(restaurant.image)
+
+  } catch (e) {
+      res.status(404).send(e)
+  }
+})
 
 //Route to update order status
 /**
