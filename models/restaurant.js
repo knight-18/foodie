@@ -33,6 +33,8 @@ const Schema = mongoose.Schema;
  *            description: Array of all the contact nos of a restaurant
  *          address:
  *            type: string
+            email:
+              type: string
  *          orders:
  *            type: array
  *            items:
