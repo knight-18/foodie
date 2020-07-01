@@ -3,6 +3,8 @@ var mongooseTypePhone = require("mongoose-type-phone");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Food = require('./food');
+const { deleteMany } = require("./order");
 
 const Schema = mongoose.Schema;
 
@@ -193,6 +195,15 @@ RestaurantSchema.pre("save", async function (next) {
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);
   }
+
+  next();
+});
+
+//Removing foods in a restaurant while deleting restaurant
+RestaurantSchema.pre('remove', async function(next) {
+  const restaurant = this;
+
+  await Food.deleteMany({restaurants: restaurant._id})
 
   next();
 });

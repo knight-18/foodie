@@ -601,8 +601,36 @@ router.get('/order/:id',auth, async (req, res) => {
     console.log(error)
     res.status(500).send(error)
   }
+})
 
+
+//Route to delete deliveryGuy
+router.delete("/delete/:id",superAdminAuth,async(req, res)=>{
+  try {
+    const dguy = await DeliveryGuy.findById({_id:req.params.id});
+    if(!dguy){
+      res.status(500).send("Can not find deliveryBoy")
+    }
+    const removed = await dguy.remove()
+    res.status(200).send(`Removed ${removed.name}`)
+  } catch (error) {
+    res.status(500).send(error)
+  }
 
 })
+
+//Route to get all delivery boys(super admin authentication)
+router.get('/all',superAdminAuth,async(req, res)=>{
+  try {
+    const deliveryGuys = await DeliveryGuy.find({})
+    if(!deliveryGuys){
+      res.status(500).send("Can not find delivery Guys")
+    }
+    res.status(200).send(deliveryGuys)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+})
+
 
 module.exports = router;

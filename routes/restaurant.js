@@ -890,10 +890,10 @@ router.patch("/status/:id", auth, async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       { _id: req.params.id },
       {
-        status: "LEFT",
+        status: "SHIPPED",
       }
     );
-    res.status(200).send(`Status Updated to "LEFT"`);
+    res.status(200).send(`Status Updated to "SHIPPED"`);
   } catch (error) {
     res.status(500).send(error);
   }
@@ -908,7 +908,8 @@ router.post('/order/acceptreject/accept/:id', auth, async(req, res)=>{
     }
     orderAccepted({
       email: order.user.email,
-      name: order.user.name
+      name: order.user.name,
+      time: req.body.eta
     })
     const deliveryGuys = await DeliveryGuy.find({})
     if(!deliveryGuys){
@@ -967,4 +968,13 @@ router.get('/order/:id',auth, async (req, res) => {
 
 })
 
+//Route to delete restaurant
+router.delete('/delete/:id',superAdminAuth, async(req, res)=>{
+  const restaurant = await Restaurant.findById({_id:req.params.id})
+  if(!restaurant){
+    res.status(500).send("Invalid restaurant ID")
+  }
+  const removed = await restaurant.remove()
+  res.status(200).send(`Removed ${removed.name}`)
+})
 module.exports = router;

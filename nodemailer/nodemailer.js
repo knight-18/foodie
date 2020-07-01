@@ -47,7 +47,7 @@ const orderPlaced = (data) => {
           from: process.env.NODEMAILER_EMAIL,
           to: data.email,
           subject:`Order Accepted`,
-          html:`<p>Dear ${data.name}, Your order is being processed and will be delivered Shortly.</p>`
+          html:`<p>Dear ${data.name}, Your order is being processed and will be delivered within ${data.time}.</p>`
         };
         console.log("Mail options: ", mailOptions)
         

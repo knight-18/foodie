@@ -8,6 +8,9 @@ const router = express.Router();
 const jwt = require("jsonwebtoken")
 const superAdminAuth = require('../middleware/super_admin_middleware')
 const {orderPlaced} = require("../nodemailer/nodemailer")
+const { Parser } = require("json2csv");
+const user = require("../models/user");
+const restaurant = require("../models/restaurant");
 
 //==============Seeding===============
 // if (process.env.NODE_ENV != "production") {
@@ -675,7 +678,7 @@ router.get('/order/:id',auth, async (req, res) => {
 
 
 })
-
+// ********************************************SuperAdmin Routes************************************************
 //Route to login as superadmin
 router.post('/super', async(req, res)=>{
   try {
@@ -688,10 +691,8 @@ router.post('/super', async(req, res)=>{
     const token = jwt.sign({ superAdmin: `${username}${password}` }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE || 129600,
     })
-  console.log(token)
     res.status(200).send({token})
   } catch (error) {
-    console.log(error)
     res.status(500).send(error)
   }
 
@@ -699,7 +700,7 @@ router.post('/super', async(req, res)=>{
 })
 
 
-//Route to fetch all the orders of a restaurant for superAdmin (Super Admin)
+//Route to fetch all the orders for superAdmin (Super Admin)
 router.get('/super/orders', superAdminAuth, async (req, res)=>{
   try {
     const pageNo = parseInt(req.query.pageNo) || 1;
@@ -728,6 +729,123 @@ router.get('/super/orders', superAdminAuth, async (req, res)=>{
     console.log(error)
     res.status(500).send(error)
   }
+})
+
+//Route to fetch all orders without pagination in csv format
+router.get('/super/allorders', superAdminAuth, async(req, res)=>{
+  try {
+    const orders = await Order.find({})
+    if(!orders){
+      res.status(500).send("Unable to fetch orders")
+    }
+    //Array to store reformatted array
+    var newOrders = [] 
+    //Function to reformat time
+    const formatTime = (createdAt)=>{
+      const time = new Date(createdAt)
+      return time.toString().substr(0,24)
+    }
+    //Function to reformat foods array
+    const formatFoods = (foods)=>{
+      var foodArray=[]
+      foods.forEach((food)=>{
+        var newFoodObject = {
+          quantity: food.quantity,
+          name: food.name
+        }
+        foodArray.push(newFoodObject) 
+      })
+      return foodArray;
+    }
+    orders.forEach((order)=> {
+      var newOrder = {
+        _id: order._id,
+        customerName: order.user.name,
+        customerPhone: order.user.phone,
+        customerEmail: order.user.email,
+        restaurantName: order.restaurant.name,
+        restaurantPhone: order.restaurant.contactNos[0],
+        restaurantEmail: order.restaurant.email,
+        address: order.address,
+        orderedOn: formatTime(order.createdAt),
+        amount: order.payment.total,
+        deliveryGuyName: order.deliveryGuy.name,
+        deliveryGuyPhone: order.deliveryGuy.phone,
+        deliveryGuyEmail: order.deliveryGuy.email,
+        foods: formatFoods(order.foods)
+      }
+      newOrders.push(newOrder);
+    })
+    const fields = [
+      {
+        label: "Order ID",
+        value: "_id"
+      },
+    {
+      label: "Customer Name",
+      value: "customerName"
+    },
+    {
+      label: 'Customer Phone',
+      value: "customerPhone"
+    },
+    {
+      label: 'Customer Email',
+      value: "customerEmail"
+    },
+    {
+      label: 'Restaurant',
+      value: "restaurantName"
+    },
+    {
+      label: 'Restaurant Phone',
+      value: "restaurantPhone"
+    },
+    {
+      label: 'Restaurant Email',
+      value: "restaurantEmail"
+    },
+    {
+      label: 'Order Amount',
+      value: "amount"
+    },
+    {
+      label: 'Delivery Boy',
+      value: "deliveryGuyName"
+    },
+    {
+      label: 'Delivery Boy Phone',
+      value: "deliveryGuyPhone"
+    },
+    {
+      label: 'Delivery Boy Email',
+      value: "deliveryGuyEmail"
+    },
+    {
+      label: 'Customer Address',
+      value: "address"
+    },
+    {
+      label: 'Foods',
+      value: "foods"
+    },
+    {
+      label: 'Status',
+      value: "status"
+    },
+    {
+      label: "Ordered On",
+      value: "orderedOn"
+    }
+    ]
+    const json2csvParser = new Parser({fields})
+    const ordersCsv = json2csvParser.parse(newOrders)
+    res.status(200).send(ordersCsv)  
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
+  }
+ 
 })
 
 module.exports = router;

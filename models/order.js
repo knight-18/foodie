@@ -168,8 +168,8 @@ const OrderSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["RECEIVED", "LEFT", "DELIVERED", "CANCELED","REJECTED","ACCEPTED"],
-      default: "RECEIVED"
+      enum: ["RECEIVED", "LEFT", "DELIVERED", "CANCELED","REJECTED","ACCEPTED","PENDING","SHIPPED"],
+      default: "PENDING"
     },
     payment: {
       method: {
@@ -312,7 +312,8 @@ OrderSchema.methods.setRestaurant = async function(restaurant) {
       _id: restaurant._id,
       name: restaurant.name,
       contactNos: restaurant.contactNos,
-      email: restaurant.email
+      email: restaurant.email,
+      address: restaurant.address
     };
     // Save them both
     await order.save();
