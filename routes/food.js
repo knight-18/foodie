@@ -311,7 +311,7 @@ async function uploadFile(auth, next, fields, req, res) {
 
     const food = new Food({
       name: fields.name,
-      //restaurants: [req.user._id],
+      restaurants: [req.user._id],
       imageLink: imageLink
     });
 
@@ -327,8 +327,8 @@ async function uploadFile(auth, next, fields, req, res) {
       });
       await restaurant.save();
       console.log(restaurant)
+      res.status(201).json(result);
       next()
-      //res.status(201).json(result);
     } catch (error) {
       res.status(500).send(error);
     }
@@ -356,7 +356,7 @@ function fun1(req,res,next){
   }) 
 }
 
-router.post("/", /*restAuth,*/ fun1, (req, res) => {
+router.post("/", restAuth, fun1, (req, res) => {
   console.log("Fuck you")
 });
 
