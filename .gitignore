@@ -2,7 +2,7 @@
 /database
 /.env
 /dump
-/credentials
-/token
-/routes/credentials
-/routes/token
+/credentials.json
+/token.json
+/routes/credentials.json
+/routes/token.json

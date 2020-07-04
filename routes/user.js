@@ -653,7 +653,7 @@ router.post("/order/cancel/:id", auth, async (req, res) => {
     await req.user.save()
     await order.remove()
 
-    res.status(200).json("status":`Order status Updated to "CANCELED"`);
+    res.status(200).json({"status":`Order status Updated to "CANCELED"`});
   } catch (error) {
     console.log(error)
     res.status(500).json(error);
