@@ -604,9 +604,9 @@ router.post("/order", auth, async (req, res) => {
 /**
  * @swagger
  * path:
- *   /user/status/{id}:
+ *   /user/order/status/{id}:
  *     patch:
- *       summary: Route to update order status to "LEFT"
+ *       summary: Route to update order status to "delivered"
  *       security:
  *         - bearerAuth: []
  *       tags: [user]
