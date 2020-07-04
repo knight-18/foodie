@@ -7,6 +7,18 @@ const Food = require("../models/food");
 const Restaurant = require("../models/restaurant");
 const restAuth = require("../middleware/restauth");
 
+/* Google Drive API */
+var formidable = require('formidable');
+const fs = require('fs');
+const { google } = require('googleapis');
+const readline = require('readline');
+
+const SCOPES = ['https://www.googleapis.com/auth/drive.appdata',
+'https://www.googleapis.com/auth/drive.file',
+'https://www.googleapis.com/auth/drive'];
+const TOKEN_PATH = 'token.json';
+
+
 // if (process.env.NODE_ENV != "production") {
 //   const food_seed = require("../seeds/food_seed");
 //   setTimeout(() => {
@@ -252,24 +264,100 @@ router.get("/", async (req, res) => {
  *
  */
 
-router.post("/", restAuth, async (req, res) => {
-  const food = new Food({
-    name: req.body.name,
-    restaurants: [req.user._id],
+function authorize(credentials, callback, next, fields, req, res) {
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(
+      client_id, client_secret, redirect_uris[0]);
+
+  // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) {
+      console.log(err)
+    }
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client, next, fields, req, res);
   });
-  try {
-    const result = await food.save();
-    const restaurant = req.user;
-    restaurant.foods.push({
-      name: result.name,
-      foodid: result._id,
-      price: req.body.price,
+}
+
+
+var fileID
+var filePath
+async function uploadFile(auth, next, fields, req, res) {
+  const drive = google.drive({version: 'v3', auth});
+  const fileMetadata = {
+    'name': 'photo.jpg',
+    parents: ['15BrinRLmiRr0b9ue8hpPKGkgkJ6A8nDJ']
+  };
+  const media = {
+    mimeType: 'image/jpg',
+    body: fs.createReadStream(filePath)
+  };
+
+  console.log("IN UPLOAD FILE")
+  try{
+    console.log("IN UPLOAD FILE 1")
+    var file = await drive.files.create({
+      resource: fileMetadata,
+      media: media,
+      fields: 'id'
     });
-    await restaurant.save();
-    res.status(201).json(result);
-  } catch (error) {
-    res.status(500).send(error);
+
+    console.log("IN UPLOAD FILE 2")
+    fileID = file.data.id
+    var imageLink = "https://drive.google.com/uc?export=view&id="+fileID;
+
+    console.log(imageLink)
+    console.log(fields)
+
+    const food = new Food({
+      name: fields.name,
+      //restaurants: [req.user._id],
+      imageLink: imageLink
+    });
+
+    console.log(food)
+    try {
+      const result = await food.save();
+      const restaurant = req.user;
+      restaurant.foods.push({
+        name: result.name,
+        foodid: result._id,
+        price: fields.price,
+        imageLink: imageLink
+      });
+      await restaurant.save();
+      console.log(restaurant)
+      next()
+      //res.status(201).json(result);
+    } catch (error) {
+      res.status(500).send(error);
+    }
+  }catch(err){
+    console.log(err)
+    next()
   }
+
+}
+
+function fun1(req,res,next){
+  console.log("In fun1")
+  const form = formidable({ multiples: true });
+
+  form.parse(req, function (err, fields, files) {
+    if(err) console.log(err)
+
+    filePath = files.image.path;
+
+    fs.readFile('credentials.json', (err, content) => {
+      if (err) return console.log('Error loading client secret file:', err);
+      authorize(JSON.parse(content), uploadFile, next, fields, req, res);
+    });
+
+  }) 
+}
+
+router.post("/", /*restAuth,*/ fun1, (req, res) => {
+  console.log("Fuck you")
 });
 
 //Function to upload picture of food

@@ -125,6 +125,9 @@ const RestaurantSchema = new Schema(
         name:{
           type: String
         },
+        imageLink:{
+          type: String
+        },
         foodid: {
           type: Schema.Types.ObjectId,
           ref: "Food",

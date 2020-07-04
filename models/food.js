@@ -27,6 +27,9 @@ const FoodSchema = new Schema({
   image: {
     type: Buffer
   },
+  imageLink: {
+    type: String
+  },
   restaurants: [
     {
       type: Schema.Types.ObjectId,
