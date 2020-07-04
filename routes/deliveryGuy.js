@@ -632,5 +632,38 @@ router.get('/all',superAdminAuth,async(req, res)=>{
   }
 })
 
+//Route to update order status
+/**
+ * @swagger
+ * path:
+ *   /deliveryguy/status/{id}:
+ *     patch:
+ *       summary: Route to update order status to "SHIPPED"
+ *       security:
+ *         - bearerAuth: []
+ *       tags: [DeliveryGuy]
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *       responses:
+ *         "200":
+ *           description: Status Updated to "SHIPPED"
+ *         "500":
+ *           description: Error
+ *
+ */
+router.patch("/status/:id", auth, async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      { _id: req.params.id },
+      {
+        status: "SHIPPED",
+      }
+    );
+    res.status(200).send(`Status Updated to "SHIPPED"`);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
 
 module.exports = router;

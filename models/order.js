@@ -125,6 +125,9 @@ const OrderSchema = new Schema(
       email: {
         type: String
       },
+      address: {
+        type: String
+      },
       contactNos: [
         {
           type: String,
