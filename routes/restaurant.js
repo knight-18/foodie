@@ -184,7 +184,7 @@ router.get("/", (req, res) => {
           id: restaurant._id,
           name: restaurant.name,
           //foods: restaurant.foods,
-          //contacts: restaurant.contactNos,
+          contactNos: restaurant.contactNos,
           address: restaurant.address,
         });
       });
@@ -849,6 +849,7 @@ router.post("/image/avatar", auth, upload.single("image"), async (req, res) => {
     await req.user.save();
     res.send("Added Restaurant Picture Successfully");
   } catch (error) {
+    console.log(error)
     res.status(400).send(error);
   }
 });

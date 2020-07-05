@@ -600,39 +600,7 @@ router.post("/order", auth, async (req, res) => {
   }
 });
 
-//Route to update order status
-/**
- * @swagger
- * path:
- *   /user/order/status/{id}:
- *     patch:
- *       summary: Route to update order status to "delivered"
- *       security:
- *         - bearerAuth: []
- *       tags: [user]
- *       parameters:
- *         - in: path
- *           name: id
- *       responses:
- *         "200":
- *           description: Status Updated to "DELIVERED"
- *         "500":
- *           description: Error
- *
- */
-router.patch("/order/status/:id", auth, async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(
-      { _id: req.params.id },
-      {
-        status: "DELIVERED",
-      }
-    );
-    res.status(200).send(`Order status Updated to "Delivered"`);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
+
 //Route to cancel order
 router.post("/order/cancel/:id", auth, async (req, res) => {
   try {
