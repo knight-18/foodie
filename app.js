@@ -12,14 +12,14 @@ const app = express();
 app.use(cors());
 
 //Setting EJS view engine
-app.set('view engine','ejs');
+// app.set('view engine','ejs');
 
 //body parser
 app.use(express.urlencoded({extended:true}));
 
 //Setup for rendering static pages
 //for static page
-app.use(express.static("public"))
+// app.use(express.static("public"))
 // app.use(methodOverride("_method"));
 
 
