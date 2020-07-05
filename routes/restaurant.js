@@ -186,6 +186,8 @@ router.get("/", (req, res) => {
           //foods: restaurant.foods,
           contactNos: restaurant.contactNos,
           address: restaurant.address,
+          email: restaurant.email,
+          restId: restaurant.rest_id
         });
       });
       res.json(data);
