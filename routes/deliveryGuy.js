@@ -687,12 +687,14 @@ router.patch("/status/:id", auth, async (req, res) => {
  *
  */
 router.patch("/order/status/:id", auth, async (req, res) => {
+  var updatedOrder = {
+    status: "DELIVERED"
+  }  
+  updatedOrder.payment.method = "COD"
+  updatedOrder.payment.status = "PAID"
   try {
-    const order = await Order.findByIdAndUpdate(
-      { _id: req.params.id },
-      {
-        status: "DELIVERED"
-      }
+    const order = await Order.updateOne(
+      { _id: req.params.id },updatedOrder
     );
     res.status(200).send(`Order status Updated to "Delivered"`);
   } catch (error) {
