@@ -670,7 +670,7 @@ router.patch("/status/:id", auth, async (req, res) => {
 /**
  * @swagger
  * path:
- *   /deliveryguy/order/status/{id}:
+ *   /deliveryguy/order/status/delivered/{id}:
  *     patch:
  *       summary: Route to update order status to "delivered"
  *       security:
@@ -692,6 +692,8 @@ router.patch("/order/status/:id", auth, async (req, res) => {
       { _id: req.params.id },
       {
         status: "DELIVERED",
+        payment.staus: "PAID"
+        payment.method: "COD"
       }
     );
     res.status(200).send(`Order status Updated to "Delivered"`);
