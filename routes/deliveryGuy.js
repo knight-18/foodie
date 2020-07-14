@@ -690,6 +690,7 @@ router.patch("/order/status/:id", auth, async (req, res) => {
   var updatedOrder = {
     status: "DELIVERED"
   }  
+  updatedOrder.payment = {}
   updatedOrder.payment.method = "COD"
   updatedOrder.payment.status = "PAID"
   try {
